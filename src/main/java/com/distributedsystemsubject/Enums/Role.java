@@ -6,7 +6,10 @@ import java.util.Collection;
 
 public enum Role {
     ADMIN("ADMIN"),
-    USER("USER"),;
+    ACCOUNTANT("ACCOUNTANT"),
+    MANAGER("MANAGER"),
+    TEACHER("TEACHER"),
+    STOCKKEEPER("STOCKKEEPER"),;
 
     private final String value;
 

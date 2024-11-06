@@ -29,7 +29,6 @@ public class SecurityConfig {
                     registry.anyRequest().authenticated();
                 })
                 .build();
-
     }
     @Bean
     public PasswordEncoder passwordEncoder() {
