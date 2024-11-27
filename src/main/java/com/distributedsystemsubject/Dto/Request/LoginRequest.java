@@ -1,4 +1,4 @@
-package com.distributedsystemsubject.Dto;
+package com.distributedsystemsubject.Dto.Request;
 
 import lombok.Data;
 

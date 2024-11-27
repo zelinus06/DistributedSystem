@@ -1,8 +1,8 @@
 package com.distributedsystemsubject.Controller;
 
-import com.distributedsystemsubject.Component.JwtTokenProvider;
-import com.distributedsystemsubject.Dto.LoginRequest;
-import com.distributedsystemsubject.Dto.LoginResponse;
+import com.distributedsystemsubject.Component.JWT.JwtTokenProvider;
+import com.distributedsystemsubject.Dto.Request.LoginRequest;
+import com.distributedsystemsubject.Dto.Response.LoginResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,9 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -22,7 +19,6 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
-
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
