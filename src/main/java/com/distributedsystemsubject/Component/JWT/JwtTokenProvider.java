@@ -1,4 +1,4 @@
-package com.distributedsystemsubject.Component;
+package com.distributedsystemsubject.Component.JWT;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.security.Keys;

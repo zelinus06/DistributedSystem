@@ -1,4 +1,4 @@
-package com.distributedsystemsubject.Dto;
+package com.distributedsystemsubject.Dto.Response;
 
 import com.distributedsystemsubject.Enums.Role;
 import lombok.AllArgsConstructor;
