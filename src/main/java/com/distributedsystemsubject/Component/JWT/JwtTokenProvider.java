@@ -1,11 +1,20 @@
 package com.distributedsystemsubject.Component.JWT;
 
+import com.distributedsystemsubject.Entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import java.security.Key;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.stereotype.Service;
@@ -19,7 +28,7 @@ public class JwtTokenProvider {
 
     public String createToken(String username, String role) {
         Claims claims = Jwts.claims().setSubject(username);
-        claims.put("roles", role);
+        claims.put("roles", "ROLE_" + role);
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
         return Jwts.builder()
@@ -37,6 +46,15 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public String getRoleFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.get("roles", String.class);
     }
 
     public boolean validateToken(String token) {

@@ -9,7 +9,7 @@ public enum Role {
     ACCOUNTANT("ACCOUNTANT"),
     MANAGER("MANAGER"),
     TEACHER("TEACHER"),
-    STOCKKEEPER("STOCKKEEPER"),;
+    STOREKEEPER("STOREKEEPER"),;
 
     private final String value;
 

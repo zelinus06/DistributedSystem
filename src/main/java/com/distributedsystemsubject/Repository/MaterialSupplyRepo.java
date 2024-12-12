@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MaterialSupplyRepo extends MongoRepository<MaterialSupply, String> {
     Page<MaterialSupply> findAll(Pageable pageable);
+    Page<MaterialSupply> findAllByRequesterName(String requesterName, Pageable pageable);
+    boolean existsByIdAndRequesterName(String id, String requesterName);
 }

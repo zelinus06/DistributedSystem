@@ -1,4 +1,4 @@
-package com.distributedsystemsubject.Service;
+package com.distributedsystemsubject.Service.StoreKeeperService;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,33 +15,11 @@ public class MaterialStorageService {
     @Autowired
     private MongoTemplate mongoTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    @Value("${spring.data.mongodb.supported-types}")
-    private String supportedTypesConfig;
-    private Set<String> SUPPORTED_TYPES;
-
-    private void initializeSupportedTypes() {
-        if (supportedTypesConfig != null && !supportedTypesConfig.isEmpty()) {
-            String[] typesArray = supportedTypesConfig.split(",");
-            SUPPORTED_TYPES = new HashSet<>();
-            for (String type : typesArray) {
-                SUPPORTED_TYPES.add(type.trim());
-            }
-        } else {
-            SUPPORTED_TYPES = new HashSet<>();
-        }
-    }
 
     public void saveRequest(String jsonString) {
         try {
-            initializeSupportedTypes();
             JsonNode jsonNode = objectMapper.readTree(jsonString);
             String type = jsonNode.get("type").asText();
-            if (!SUPPORTED_TYPES.contains(type)) {
-                throw new IllegalArgumentException("Unsupported type: " + type);
-            }
-            if (type == null || type.isEmpty()) {
-                throw new IllegalArgumentException("Missing 'type' field in JSON");
-            }
             mongoTemplate.save(jsonString, type);
         } catch (Exception e) {
             e.printStackTrace();
