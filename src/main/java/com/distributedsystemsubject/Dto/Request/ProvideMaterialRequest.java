@@ -7,13 +7,15 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-public class MaterialSupplyRequest {
-    private String requesterName;
+public class ProvideMaterialRequest {
+    private String id;
     private String topicName;
-    private String type;
-    private List<Map<String, String>> materials;
+    private String storekeeperName;
+    private String teacherName;
     private List<String> classrooms;
     private String semester;
+    private String type;
+    private List<Map<String, String>> materials;
     private String purpose;
     private Date date;
 }

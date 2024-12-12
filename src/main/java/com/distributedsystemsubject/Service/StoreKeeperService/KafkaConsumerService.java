@@ -1,7 +1,6 @@
-package com.distributedsystemsubject.Service;
+package com.distributedsystemsubject.Service.StoreKeeperService;
 
-import com.distributedsystemsubject.Dto.Request.MaterialSupplyRequest;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.distributedsystemsubject.Service.StoreKeeperService.MaterialStorageService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -13,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class KafkaConsumerService {
     @Autowired
-    MaterialStorageService materialStorageService;
+    private MaterialStorageService materialStorageService;
     private final ObjectMapper objectMapper = new ObjectMapper();
     @KafkaListener(topics = "${kafka.topic.name1}", groupId = "group_id")
     public void listen(String materialSupplyRequest, Acknowledgment acknowledgment) {

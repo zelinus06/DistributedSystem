@@ -15,9 +15,9 @@
 //    @PostConstruct
 //    public void init() {
 //        User user = new User();
-//        user.setUsername("thai");
+//        user.setUsername("thaistockeeper");
 //        user.setPassword("hello");
-//        user.setRole(Role.USER); // hoặc vai trò bạn muốn
-//        userRepo.save(user); // Lưu user vào MongoDB
+//        user.setRole(Role.STOCKKEEPER);
+//        userRepo.save(user);
 //    }
 //}

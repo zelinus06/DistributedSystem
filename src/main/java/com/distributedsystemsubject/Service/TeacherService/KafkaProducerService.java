@@ -1,4 +1,4 @@
-package com.distributedsystemsubject.Service;
+package com.distributedsystemsubject.Service.TeacherService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
