@@ -4,15 +4,20 @@ import com.distributedsystemsubject.Component.JWT.JwtTokenProvider;
 import com.distributedsystemsubject.Dto.Request.LoginRequest;
 import com.distributedsystemsubject.Dto.Response.LoginResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 @RestController
@@ -38,5 +43,10 @@ public class AuthController {
         } catch (AuthenticationException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login Failed: " + ex.getMessage());
         }
+    }
+
+    @GetMapping("/login")
+    public String login() {
+        return "redirect:/index.html";
     }
 }

@@ -1,8 +1,7 @@
 package com.distributedsystemsubject.Controller.StoreKeeperController;
 
-import com.distributedsystemsubject.Dto.Request.MaterialSupplyRequest;
 import com.distributedsystemsubject.Dto.Request.ProvideMaterialRequest;
-import com.distributedsystemsubject.Service.StoreKeeperService.KafkaProducerService;
+import com.distributedsystemsubject.Service.StoreKeeperService.KafkaProducerStoreKeeperService;
 import com.distributedsystemsubject.Service.StoreKeeperService.ManageProvideRequestService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,7 @@ public class ProvideRequestController {
     @Autowired
     private ManageProvideRequestService manageProvideRequestService;
     @Autowired
-    private KafkaProducerService kafkaProducerService;
+    private KafkaProducerStoreKeeperService kafkaProducerStoreKeeperService;
     @Value("${kafka.topic.name2}")
     private String provideTopic;
     @Value("${spring.data.mongodb.ProvideType}")
@@ -42,7 +41,7 @@ public class ProvideRequestController {
         try {
             String message = objectMapper.writeValueAsString(request);
             System.out.println("Sending message to Kafka: " + message);
-            kafkaProducerService.sendMessage(topicName, name, message);
+            kafkaProducerStoreKeeperService.sendMessage(topicName, name, message);
         } catch (Exception e) {
             e.printStackTrace();
         }
