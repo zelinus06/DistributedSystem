@@ -35,3 +35,21 @@ services:
       JVM_OPTS: "-Xms32M -Xmx64M"
     depends_on:
       - kafka
+
+#  # Spring Boot application
+#  springboot-app:
+#    build: .
+#    restart: always
+#    container_name: springboot-app
+#    ports:
+#      - "8080:8080"  # Đảm bảo cổng này không bị trùng với dịch vụ khác
+#    environment:
+#      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092  # Kafka server địa chỉ trong Docker network
+#    depends_on:
+#      - kafka  # Đảm bảo Spring Boot khởi động sau khi Kafka đã sẵn sàng
+#    networks:
+#      - kafka-net
+#
+#networks:
+#  kafka-net:
+#    driver: bridge
