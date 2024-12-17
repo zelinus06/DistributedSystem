@@ -55,9 +55,6 @@ public class ManageProvideRequestService {
             warehouse.getMaterials().forEach(material -> {
                 if (material.getName().equals(requestedMaterial.getName())) {
                     if (material.getQuantity() > requestedMaterial.getQuantity()) {
-                        System.out.println("material.getQuantity(): " + material.getQuantity());
-                        System.out.println("quantity: " + requestedMaterial.getQuantity());
-
                         material.setQuantity(material.getQuantity() - requestedMaterial.getQuantity());
                     } else {
                         System.out.println("vler");
