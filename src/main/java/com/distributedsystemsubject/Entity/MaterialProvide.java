@@ -10,24 +10,23 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-@Document(collection = "MaterialSupply")
+@Document(collection = "MaterialProvide")
 @Getter
 @Setter
-public class MaterialSupply {
+public class MaterialProvide {
     @Id
     private String id;
-    private String requesterName;
+    private String requestId;
+    private String storekeeperName;
     private String topicName;
+    private String teacherName;
     private String type;
     private List<Materials> materials;
     private List<String> classrooms;
     private String semester;
     private String purpose;
     private String date;
-    private String note;
     private String status;
-    private String approvedBy;
-    private String approvedDate;
-    private String rejectedBy;
-    private String rejectedDate;
+    private String source;
 }
+

@@ -38,15 +38,31 @@ public class AuthController {
                     .map(GrantedAuthority::getAuthority)
                     .collect(Collectors.joining(","));
             String token = jwtTokenProvider.createToken(authentication.getName(), role);
-            LoginResponse loginResponse = new LoginResponse(authentication.getName(), role, token);
+            String url;
+            switch (role) {
+                case "TEACHER":
+                    url = "/html/teacher.html"
+                    break;
+                case "ACCOUNTANT":
+                    url = "/user/home";
+                    break;
+                case "MANAGER":
+                    url = "/guest/home";
+                    break;
+                case "STOREKEEPER":
+                    url = "/guest/home";
+                    break;
+                case "ADMIN":
+                    url = "/guest/home";
+                    break;
+                default:
+                    url = "/home";
+                    break;
+            }
+            LoginResponse loginResponse = new LoginResponse(authentication.getName(), role, url, token);
             return ResponseEntity.ok(loginResponse);
         } catch (AuthenticationException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login Failed: " + ex.getMessage());
         }
-    }
-
-    @GetMapping("/login")
-    public String login() {
-        return "redirect:/index.html";
     }
 }

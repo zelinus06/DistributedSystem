@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Service
@@ -36,11 +37,13 @@ public class ManageMaterialRequestService {
             if (approved) {
                 request.setStatus("approved");
                 request.setApprovedBy(username);
-                request.setApprovedDate(new Date());
+                String approvedDateString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+                request.setApprovedDate(approvedDateString);
             } else {
                 request.setStatus("rejected");
                 request.setRejectedBy(username);
-                request.setRejectedDate(new Date());
+                String rejectedDateString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+                request.setRejectedDate(rejectedDateString);
             }
         }
         if (note != null) {
