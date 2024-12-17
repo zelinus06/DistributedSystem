@@ -41,7 +41,7 @@ public class AuthController {
             String url;
             switch (role) {
                 case "TEACHER":
-                    url = "/html/teacher.html"
+                    url = "/html/teacher.html";
                     break;
                 case "ACCOUNTANT":
                     url = "/user/home";

@@ -9,6 +9,5 @@ import java.util.Optional;
 
 @Repository
 public interface TeacherWarhouseRepo extends MongoRepository<TeacherWarhouse, String> {
-
     Optional<TeacherWarhouse> findByTeacherName(String teacherName);
 }

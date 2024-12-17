@@ -1,7 +1,9 @@
 package com.distributedsystemsubject.Controller.StoreKeeperController;
 
 import com.distributedsystemsubject.Dto.Request.ProvideMaterialRequest;
+import com.distributedsystemsubject.Entity.MaterialProvide;
 import com.distributedsystemsubject.Service.StoreKeeperService.KafkaProducerStoreKeeperService;
+import com.distributedsystemsubject.Service.StoreKeeperService.ProvideRequestService;
 import com.distributedsystemsubject.Service.TeacherService.ManageProvideRequestService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,18 +11,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/storekeeper/provide")
 public class ProvideRequestController {
     @Autowired
-    private ManageProvideRequestService manageProvideRequestService;
+    private ProvideRequestService provideRequestService;
     @Autowired
     private KafkaProducerStoreKeeperService kafkaProducerStoreKeeperService;
     @Value("${kafka.topic.name2}")
@@ -55,5 +55,11 @@ public class ProvideRequestController {
             e.printStackTrace();
         }
         return ResponseEntity.ok("Request sent to Kafka");
+    }
+
+    @GetMapping("/view")
+    public ResponseEntity<?> getProvideRequest() {
+        List<MaterialProvide> requests = provideRequestService.getAllRequests();
+        return ResponseEntity.ok(requests);
     }
 }
