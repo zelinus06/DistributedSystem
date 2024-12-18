@@ -21,7 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/teacher/request")
-public class RequestController {
+public class RequestMaterialController {
     @Autowired
     private KafkaProducerService kafkaProducerService;
     @Autowired
