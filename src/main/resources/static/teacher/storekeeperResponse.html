@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Vật Tư Cung Cấp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .request-list {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .request-list th, .request-list td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .request-list th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .request-list tr:hover {
+            background-color: #f1f1f1;
+            cursor: pointer;
+        }
+        .status-approved {
+            color: green;
+            font-weight: bold;
+        }
+        .status-rejected {
+            color: red;
+            font-weight: bold;
+        }
+        .status-pending {
+            color: orange;
+            font-weight: bold;
+        }
+        .confirm-btn {
+            padding: 8px 15px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .confirm-btn:hover {
+            background-color: #0056b3;
+        }
+        .disabled-btn {
+            background-color: #ccc;
+            color: white;
+            cursor: not-allowed;
+        }
+        .detail-section {
+            margin-top: 20px;
+        }
+        .detail-section h2 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .detail-table th, .detail-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .detail-table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .detail-section p {
+            color: #333;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Danh Sách Vật Tư Cung Cấp</h1>
+        <table class="request-list" id="requestTable">
+            <thead>
+                <tr>
+                    <th>Người Gửi</th>
+                    <th>Tên Đề Tài</th>
+                    <th>Loại Yêu Cầu</th>
+                    <th>Ngày Yêu Cầu</th>
+                    <th>Trạng Thái</th>
+                    <th>Xác Nhận</th>
+                </tr>
+            </thead>
+            <tbody id="requestTableBody">
+                <!-- Dữ liệu sẽ được load động -->
+            </tbody>
+        </table>
+
+        <div class="detail-section" id="detailSection" style="display: none;">
+            <h2>Chi Tiết Yêu Cầu</h2>
+            <table class="detail-table">
+                <thead>
+                    <tr>
+                        <th>Tên Vật Tư</th>
+                        <th>Số Lượng</th>
+                        <th>Đơn Vị</th>
+                    </tr>
+                </thead>
+                <tbody id="materialTableBody">
+                    <!-- Chi tiết vật tư sẽ được hiển thị ở đây -->
+                </tbody>
+            </table>
+            <p><strong>Mục Đích:</strong> <span id="purposeDetail"></span></p>
+            <p><strong>Học Kỳ:</strong> <span id="semesterDetail"></span></p>
+            <p><strong>Lớp Học:</strong> <span id="classroomsDetail"></span></p>
+            <p><strong>Nguồn:</strong> <span id="sourceDetail"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // Mock data - Dữ liệu giả
+        const mockResponse = [
+            {
+                "id": "676128203e63c665808f29ed",
+                "requestId": "675a9c014f3c085034ba8118",
+                "storekeeperName": "thaistorekeeper",
+                "topicName": "Yêu Cầu Cung Cấp",
+                "type": "Cung Cấp Vật Tư",
+                "materials": [
+                    {
+                        "materialName": "Sổ Tay",
+                        "quantity": 50,
+                        "unit": "kg"
+                    },
+                    {
+                        "materialName": "Bút Dạ",
+                        "quantity": 10,
+                        "unit": "kg"
+                    }
+                ],
+                "classrooms": [
+                    "101",
+                    "102"
+                ],
+                "semester": "Mùa Xuân 2024",
+                "purpose": "Chuẩn Bị Lớp Học",
+                "date": "2024-12-17 07:28:32",
+                "status": "approved",
+                "source": "Hóa học"
+            },
+            {
+                "id": "676129ff5085756e81f42e01",
+                "requestId": "675a9c014f3c085034ba8110",
+                "storekeeperName": "thaistorekeeper",
+                "topicName": "Yêu Cầu Cung Cấp",
+                "type": "Cung Cấp Vật Tư",
+                "materials": [
+                    {
+                        "materialName": "Sổ Tay",
+                        "quantity": 50,
+                        "unit": "kg"
+                    },
+                    {
+                        "materialName": "Bút Dạ",
+                        "quantity": 10,
+                        "unit": "kg"
+                    }
+                ],
+                "classrooms": [
+                    "103",
+                    "102"
+                ],
+                "semester": "Mùa Hè 2020",
+                "purpose": "Chuẩn Bị Lớp Học",
+                "date": "2024-12-17 07:36:30",
+                "status": "rejected",
+                "source": "Hóa học 2"
+            }
+        ];
+
+        // Hàm hiển thị danh sách yêu cầu
+        function renderRequests() {
+            const tableBody = document.getElementById('requestTableBody');
+            tableBody.innerHTML = ''; // Xóa dữ liệu cũ
+
+            mockResponse.forEach(request => {
+                const isConfirmable = request.status === 'approved' || request.status === 'rejected';
+
+                const row = document.createElement('tr');
+                row.onclick = () => showRequestDetails(request); // Hiển thị chi tiết khi click vào hàng
+                row.innerHTML = `
+                    <td>${request.storekeeperName}</td>
+                    <td>${request.topicName}</td>
+                    <td>${request.type}</td>
+                    <td>${request.date}</td>
+                    <td class="${getStatusClass(request.status)}">${request.status.charAt(0).toUpperCase() + request.status.slice(1)}</td>
+                    <td>
+                        ${isConfirmable ? `<button class="confirm-btn" id="confirmBtn-${request.id}" onclick="confirmRequest(event, '${request.id}')">Xác Nhận</button>` : ''}
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Hàm hiển thị chi tiết yêu cầu
+        function showRequestDetails(request) {
+            document.getElementById('detailSection').style.display = 'block';
+
+            // Hiển thị danh sách vật tư
+            const materialTableBody = document.getElementById('materialTableBody');
+            materialTableBody.innerHTML = ''; // Xóa dữ liệu cũ
+            request.materials.forEach(material => {
+                const materialRow = document.createElement('tr');
+                materialRow.innerHTML = `
+                    <td>${material.materialName}</td>
+                    <td>${material.quantity}</td>
+                    <td>${material.unit}</td>
+                `;
+                materialTableBody.appendChild(materialRow);
+            });
+
+            // Hiển thị thông tin khác
+            document.getElementById('purposeDetail').textContent = request.purpose;
+            document.getElementById('semesterDetail').textContent = request.semester;
+            document.getElementById('classroomsDetail').textContent = request.classrooms.join(', ');
+            document.getElementById('sourceDetail').textContent = request.source;
+        }
+
+        // Lấy class trạng thái
+        function getStatusClass(status) {
+            switch (status) {
+                case 'approved': return 'status-approved';
+                case 'rejected': return 'status-rejected';
+                case 'pending': return 'status-pending';
+                default: return '';
+            }
+        }
+
+        // Hàm xác nhận yêu cầu
+        function confirmRequest(event, requestId) {
+            event.stopPropagation(); // Ngăn sự kiện click hàng
+            const button = document.getElementById(`confirmBtn-${requestId}`);
+            button.innerText = "Đã Xác Nhận";
+            button.classList.add('disabled-btn');
+            button.disabled = true;
+            alert(`Yêu cầu ${requestId} đã được xác nhận thành công!`);
+        }
+
+        // Tải dữ liệu khi trang được load
+        document.addEventListener('DOMContentLoaded', renderRequests);
+    </script>
+</body>
+</html>

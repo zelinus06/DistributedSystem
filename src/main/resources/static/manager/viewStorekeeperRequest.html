@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách Yêu cầu Cung cấp Vật tư</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .provide-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: white;
+        }
+
+        .provide-header {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .provide-info {
+            font-size: 0.9em;
+        }
+
+        .provide-info span {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .materials-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .material-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .material-item:last-child {
+            border-bottom: none;
+        }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .status-confirmed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background-color: #ffeeba;
+            color: #856404;
+        }
+
+        .classrooms {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .classroom-tag {
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+        }
+
+        .no-provides {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .provide-header {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Danh sách Yêu cầu Cung cấp Vật tư</h1>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="semester">Học kỳ:</label>
+                <select id="semester" onchange="filterProvides()">
+                    <option value="">Tất cả</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="status">Trạng thái:</label>
+                <select id="status" onchange="filterProvides()">
+                    <option value="">Tất cả</option>
+                    <option value="confirmed">Đã xác nhận</option>
+                    <option value="pending">Chờ xử lý</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="dateRange">Thời gian:</label>
+                <input type="date" id="startDate" onchange="filterProvides()">
+                <input type="date" id="endDate" onchange="filterProvides()">
+            </div>
+        </div>
+
+        <div id="provides-container"></div>
+    </div>
+
+    <script>
+        // Mock data
+        const mockProvides = [
+            {
+                "id": "67613eaa3109a23eb8f0860e",
+                "requestId": "67613ac3b9ba901d7fb09a5b",
+                "storekeeperName": "thaistorekeeper",
+                "topicName": "ProvideRequest",
+                "teacherName": "thaiteacher",
+                "type": "MaterialProvide",
+                "materials": [
+                    {
+                        "name": "Whiteboard Marker",
+                        "quantity": 5,
+                        "unit": "pieces"
+                    },
+                    {
+                        "name": "Projector Bulb",
+                        "quantity": 5,
+                        "unit": "pieces"
+                    }
+                ],
+                "classrooms": ["Room 101", "Room 102"],
+                "semester": "Fall 2024",
+                "purpose": "Teaching purposes",
+                "date": "2024-12-17 09:04:42",
+                "status": "confirmed",
+                "source": "67613d7bd6d5e23a7d90a609"
+            },
+            {
+                "id": "6761849486872ecb7c4dd4e1",
+                "requestId": "67613ac3b9ba901d7fb09a5a",
+                "storekeeperName": "thaistorekeeper",
+                "topicName": "ProvideRequest",
+                "teacherName": "thaiteacher",
+                "type": "MaterialProvide",
+                "materials": [
+                    {
+                        "name": "Whiteboard Marker",
+                        "quantity": 5,
+                        "unit": "pieces"
+                    },
+                    {
+                        "name": "Projector Bulb",
+                        "quantity": 5,
+                        "unit": "pieces"
+                    }
+                ],
+                "classrooms": ["Room 101", "Room 102"],
+                "semester": "Fall 2024",
+                "purpose": "Teaching purposes",
+                "date": "2024-12-17 09:04:42",
+                "status": "confirmed",
+                "source": "67613d7bd6d5e23a7d90a609"
+            }
+        ];
+
+        // Initialize semester options
+        function initializeSemesters() {
+            const semesterSelect = document.getElementById('semester');
+            const semesters = [...new Set(mockProvides.map(p => p.semester))];
+            semesters.forEach(semester => {
+                const option = document.createElement('option');
+                option.value = semester;
+                option.textContent = semester;
+                semesterSelect.appendChild(option);
+            });
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleString('vi-VN');
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'confirmed': return 'Đã xác nhận';
+                case 'pending': return 'Chờ xử lý';
+                default: return status;
+            }
+        }
+
+        function filterProvides() {
+            const semester = document.getElementById('semester').value;
+            const status = document.getElementById('status').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            let filteredProvides = [...mockProvides];
+
+            if (semester) {
+                filteredProvides = filteredProvides.filter(p => p.semester === semester);
+            }
+
+            if (status) {
+                filteredProvides = filteredProvides.filter(p => p.status === status);
+            }
+
+            if (startDate) {
+                filteredProvides = filteredProvides.filter(p => new Date(p.date) >= new Date(startDate));
+            }
+
+            if (endDate) {
+                filteredProvides = filteredProvides.filter(p => new Date(p.date) <= new Date(endDate));
+            }
+
+            renderProvides(filteredProvides);
+        }
+
+        function renderProvides(provides) {
+            const container = document.getElementById('provides-container');
+            
+            if (provides.length === 0) {
+                container.innerHTML = '<div class="no-provides">Không có yêu cầu cung cấp nào</div>';
+                return;
+            }
+
+            container.innerHTML = provides.map(provide => `
+                <div class="provide-card">
+                    <div class="provide-header">
+                        <div class="provide-info">
+                            <p><span>Mã yêu cầu:</span> ${provide.id}</p>
+                            <p><span>Thủ kho:</span> ${provide.storekeeperName}</p>
+                            <p><span>Giáo viên:</span> ${provide.teacherName}</p>
+                        </div>
+                        <div class="provide-info">
+                            <p><span>Học kỳ:</span> ${provide.semester}</p>
+                            <p><span>Ngày yêu cầu:</span> ${formatDate(provide.date)}</p>
+                            <p><span>Trạng thái:</span> 
+                                <span class="status status-${provide.status}">
+                                    ${getStatusText(provide.status)}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="provide-info">
+                            <p><span>Phòng học:</span></p>
+                            <div class="classrooms">
+                                ${provide.classrooms.map(room => `
+                                    <span class="classroom-tag">${room}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="materials-list">
+                        <h3>Danh sách vật tư:</h3>
+                        ${provide.materials.map(material => `
+                            <div class="material-item">
+                                <span>${material.name}</span>
+                                <span>${material.quantity} ${material.unit}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize page
+        initializeSemesters();
+        renderProvides(mockProvides);
+    </script>
+</body>
+</html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phê duyệt Yêu cầu Mua sắm</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .request-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .request-header {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .request-info {
+            font-size: 0.9em;
+        }
+
+        .request-info span {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .materials-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .materials-table th,
+        .materials-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .materials-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-approve {
+            background-color: #28a745;
+        }
+
+        .btn-approve:hover {
+            background-color: #218838;
+        }
+
+        .btn-reject {
+            background-color: #dc3545;
+        }
+
+        .btn-reject:hover {
+            background-color: #c82333;
+        }
+
+        .btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background-color: #ffeeba;
+            color: #856404;
+        }
+
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: #f8f9fa;
+        }
+
+        .message {
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+        }
+
+        .modal-title {
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .modal textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 100px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Phê duyệt Yêu cầu Mua sắm</h1>
+        <div id="message" class="message"></div>
+        <div id="requests-container"></div>
+    </div>
+
+    <!-- Modal từ chối -->
+    <div id="rejectModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">Lý do từ chối</div>
+            <textarea id="rejectReason" placeholder="Nhập lý do từ chối..."></textarea>
+            <div class="modal-buttons">
+                <button class="btn btn-reject" onclick="confirmReject()">Xác nhận</button>
+                <button class="btn" style="background-color: #6c757d;" onclick="closeRejectModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock data
+        const mockRequests = [
+            {
+                "id": "67623e3a962b8f0eeb0f1441",
+                "requesterName": "thaistorekeeper",
+                "topicName": "OrderRequest",
+                "type": "MaterialOrder",
+                "materials": [
+                    {
+                        "name": "Laptop",
+                        "quantity": 5,
+                        "unit": "pcs",
+                        "price": 200000
+                    },
+                    {
+                        "name": "Mouse",
+                        "quantity": 10,
+                        "unit": "pcs",
+                        "price": 200000
+                    }
+                ],
+                "purpose": "Procurement for new employees",
+                "date": "2024-12-18 03:15:06",
+                "status": "pending",
+                "approvedBy": null,
+                "approvedDate": null,
+                "rejectReason": null
+            }
+        ];
+
+        let currentRequestId = null;
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleString('vi-VN');
+        }
+
+        function showMessage(text) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = 'message success';
+            setTimeout(() => {
+                messageDiv.className = 'message';
+            }, 3000);
+        }
+
+        function approveRequest(requestId) {
+            const request = mockRequests.find(r => r.id === requestId);
+            if (request) {
+                request.status = 'approved';
+                request.approvedBy = 'Director';
+                request.approvedDate = new Date().toISOString();
+                renderRequests();
+                showMessage('Yêu cầu đã được phê duyệt!');
+            }
+        }
+
+        function showRejectModal(requestId) {
+            currentRequestId = requestId;
+            document.getElementById('rejectModal').style.display = 'flex';
+            document.getElementById('rejectReason').value = '';
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+            currentRequestId = null;
+        }
+
+        function confirmReject() {
+            const reason = document.getElementById('rejectReason').value;
+            if (!reason.trim()) {
+                alert('Vui lòng nhập lý do từ chối');
+                return;
+            }
+
+            const request = mockRequests.find(r => r.id === currentRequestId);
+            if (request) {
+                request.status = 'rejected';
+                request.approvedBy = 'Director';
+                request.approvedDate = new Date().toISOString();
+                request.rejectReason = reason;
+                renderRequests();
+                showMessage('Yêu cầu đã bị từ chối!');
+            }
+            closeRejectModal();
+        }
+
+        function calculateTotal(materials) {
+            return materials.reduce((total, item) => total + (item.quantity * item.price), 0);
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'pending': return 'Chờ duyệt';
+                case 'approved': return 'Đã duyệt';
+                case 'rejected': return 'Đã từ chối';
+                default: return status;
+            }
+        }
+
+        function renderRequests() {
+            const container = document.getElementById('requests-container');
+            container.innerHTML = mockRequests.map(request => {
+                const total = calculateTotal(request.materials);
+                return `
+                    <div class="request-card">
+                        <div class="request-header">
+                            <div class="request-info">
+                                <p><span>Mã yêu cầu:</span> ${request.id}</p>
+                                <p><span>Người yêu cầu:</span> ${request.requesterName}</p>
+                                <p><span>Mục đích:</span> ${request.purpose}</p>
+                            </div>
+                            <div class="request-info">
+                                <p><span>Ngày yêu cầu:</span> ${formatDate(request.date)}</p>
+                                <p><span>Trạng thái:</span> 
+                                    <span class="status status-${request.status}">
+                                        ${getStatusText(request.status)}
+                                    </span>
+                                </p>
+                                ${request.approvedDate ? `
+                                    <p><span>Ngày phản hồi:</span> ${formatDate(request.approvedDate)}</p>
+                                    <p><span>Người phản hồi:</span> ${request.approvedBy}</p>
+                                    ${request.rejectReason ? `<p><span>Lý do từ chối:</span> ${request.rejectReason}</p>` : ''}
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <table class="materials-table">
+                            <thead>
+                                <tr>
+                                    <th>Tên vật tư</th>
+                                    <th>Số lượng</th>
+                                    <th>Đơn vị</th>
+                                    <th>Đơn giá</th>
+                                    <th>Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${request.materials.map(material => `
+                                    <tr>
+                                        <td>${material.name}</td>
+                                        <td>${material.quantity}</td>
+                                        <td>${material.unit}</td>
+                                        <td>${formatCurrency(material.price)}</td>
+                                        <td>${formatCurrency(material.quantity * material.price)}</td>
+                                    </tr>
+                                `).join('')}
+                                <tr class="total-row">
+                                    <td colspan="4">Tổng cộng</td>
+                                    <td>${formatCurrency(total)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        ${request.status === 'pending' ? `
+                            <div class="btn-group">
+                                <button class="btn btn-approve" onclick="approveRequest('${request.id}')">
+                                    <i class="fas fa-check"></i> Đồng ý
+                                </button>
+                                <button class="btn btn-reject" onclick="showRejectModal('${request.id}')">
+                                    <i class="fas fa-times"></i> Từ chối
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Khởi tạo dữ liệu ban đầu
+        renderRequests();
+    </script>
+</body>
+</html>

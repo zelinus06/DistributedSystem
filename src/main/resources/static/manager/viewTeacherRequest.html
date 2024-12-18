@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách Yêu cầu Vật tư</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .request-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .request-header {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .request-info {
+            font-size: 0.9em;
+        }
+
+        .request-info span {
+            font-weight: bold;
+            color: #555;
+        }
+
+        .materials-list {
+            margin: 15px 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .material-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .material-item:last-child {
+            border-bottom: none;
+        }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            background-color: #ffeeba;
+            color: #856404;
+        }
+
+        .status-approved {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .classrooms {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .classroom-tag {
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.85em;
+        }
+
+        .no-requests {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .request-header {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Danh sách Yêu cầu Vật tư</h1>
+        
+        <div class="filters">
+            <div class="filter-group">
+                <label for="semester">Học kỳ:</label>
+                <select id="semester" onchange="filterRequests()">
+                    <option value="">Tất cả</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="status">Trạng thái:</label>
+                <select id="status" onchange="filterRequests()">
+                    <option value="">Tất cả</option>
+                    <option value="pending">Chờ duyệt</option>
+                    <option value="approved">Đã duyệt</option>
+                    <option value="rejected">Đã từ chối</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="dateRange">Thời gian:</label>
+                <input type="date" id="startDate" onchange="filterRequests()">
+                <input type="date" id="endDate" onchange="filterRequests()">
+            </div>
+        </div>
+
+        <div id="requests-container"></div>
+    </div>
+
+    <script>
+        // Mock data
+        const mockRequests = [
+            {
+                "id": "6761497d1a1ef936f040f4b7",
+                "requesterName": "thaiteacher",
+                "topicName": "SupplyRequest",
+                "type": "MaterialSupply",
+                "materials": [
+                    {
+                        "name": "Whiteboard Marker",
+                        "quantity": 10,
+                        "unit": "pieces"
+                    },
+                    {
+                        "name": "Projector Bulb",
+                        "quantity": 5,
+                        "unit": "pieces"
+                    }
+                ],
+                "classrooms": ["Room 101", "Room 102"],
+                "semester": "Fall 2024",
+                "purpose": "Teaching purposes",
+                "date": "2024-12-17 09:50:53",
+                "status": "pending",
+                "approvedBy": null,
+                "approvedDate": null,
+                "rejectedBy": null,
+                "rejectedDate": null
+            },
+            {
+                "id": "676157332c3307b9b2123da4",
+                "requesterName": "thaiteacher",
+                "topicName": "SupplyRequest",
+                "type": "MaterialSupply",
+                "materials": [
+                    {
+                        "name": "Whiteboard Marker",
+                        "quantity": 7,
+                        "unit": "pieces"
+                    },
+                    {
+                        "name": "Projector Bulb",
+                        "quantity": 7,
+                        "unit": "pieces"
+                    }
+                ],
+                "classrooms": ["Room 101", "Room 102"],
+                "semester": "Fall 2020",
+                "purpose": "Teaching purposes",
+                "date": "2024-12-17 09:51:13",
+                "status": "pending",
+                "approvedBy": null,
+                "approvedDate": null,
+                "rejectedBy": null,
+                "rejectedDate": null
+            }
+        ];
+
+        // Initialize semester options
+        function initializeSemesters() {
+            const semesterSelect = document.getElementById('semester');
+            const semesters = [...new Set(mockRequests.map(r => r.semester))];
+            semesters.forEach(semester => {
+                const option = document.createElement('option');
+                option.value = semester;
+                option.textContent = semester;
+                semesterSelect.appendChild(option);
+            });
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleString('vi-VN');
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'pending': return 'Chờ duyệt';
+                case 'approved': return 'Đã duyệt';
+                case 'rejected': return 'Đã từ chối';
+                default: return status;
+            }
+        }
+
+        function filterRequests() {
+            const semester = document.getElementById('semester').value;
+            const status = document.getElementById('status').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            let filteredRequests = [...mockRequests];
+
+            if (semester) {
+                filteredRequests = filteredRequests.filter(r => r.semester === semester);
+            }
+
+            if (status) {
+                filteredRequests = filteredRequests.filter(r => r.status === status);
+            }
+
+            if (startDate) {
+                filteredRequests = filteredRequests.filter(r => new Date(r.date) >= new Date(startDate));
+            }
+
+            if (endDate) {
+                filteredRequests = filteredRequests.filter(r => new Date(r.date) <= new Date(endDate));
+            }
+
+            renderRequests(filteredRequests);
+        }
+
+        function renderRequests(requests) {
+            const container = document.getElementById('requests-container');
+            
+            if (requests.length === 0) {
+                container.innerHTML = '<div class="no-requests">Không có yêu cầu nào</div>';
+                return;
+            }
+
+            container.innerHTML = requests.map(request => `
+                <div class="request-card">
+                    <div class="request-header">
+                        <div class="request-info">
+                            <p><span>Mã yêu cầu:</span> ${request.id}</p>
+                            <p><span>Người yêu cầu:</span> ${request.requesterName}</p>
+                            <p><span>Mục đích:</span> ${request.purpose}</p>
+                        </div>
+                        <div class="request-info">
+                            <p><span>Học kỳ:</span> ${request.semester}</p>
+                            <p><span>Ngày yêu cầu:</span> ${formatDate(request.date)}</p>
+                            <p><span>Trạng thái:</span> 
+                                <span class="status status-${request.status}">
+                                    ${getStatusText(request.status)}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="request-info">
+                            <p><span>Phòng học:</span></p>
+                            <div class="classrooms">
+                                ${request.classrooms.map(room => `
+                                    <span class="classroom-tag">${room}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="materials-list">
+                        <h3>Danh sách vật tư:</h3>
+                        ${request.materials.map(material => `
+                            <div class="material-item">
+                                <span>${material.name}</span>
+                                <span>${material.quantity} ${material.unit}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize page
+        initializeSemesters();
+        renderRequests(mockRequests);
+    </script>
+</body>
+</html>
