@@ -2,8 +2,10 @@ package com.distributedsystemsubject.Controller.StoreKeeperController;
 
 import com.distributedsystemsubject.Dto.Request.MaterialAddingRequest;
 import com.distributedsystemsubject.Entity.Materials;
+import com.distributedsystemsubject.Entity.Warehouse;
 import com.distributedsystemsubject.Service.StoreKeeperService.ManageWarhouseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,5 +26,17 @@ public class ManageMaterialController {
     public ResponseEntity<List<Materials>> viewMaterial() {
         List<Materials> list = manageWarhouseService.viewMaterials("67613d7bd6d5e23a7d90a609");
         return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchMaterials(@RequestParam String materialName) {
+        try {
+            Materials results = manageWarhouseService.searchMaterialsByName(materialName);
+            return ResponseEntity.ok(results);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Material not found: " + materialName);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred.");
+        }
     }
 }

@@ -26,4 +26,16 @@ public class ManageWarhouseService {
                 .orElseThrow(() -> new RuntimeException("Warehouse not found"));
         return warehouse.getMaterials();
     }
+
+    public Materials searchMaterialsByName(String materialName) {
+        List<Warehouse> results = warehouseRepo.findByMaterialName(materialName);
+        for (Warehouse warehouse : results) {
+            for (Materials material : warehouse.getMaterials()) {
+                if (material.getName().equalsIgnoreCase(materialName)) {
+                    return material;
+                }
+            }
+        }
+        throw new RuntimeException("Material not found");
+    }
 }

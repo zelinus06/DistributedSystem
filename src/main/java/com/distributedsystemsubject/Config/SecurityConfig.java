@@ -36,6 +36,8 @@ public class SecurityConfig {
                     registry.requestMatchers("/auth/**","/html/**","/css/**","/js/**","/static/**","/image/**").permitAll();
                     registry.requestMatchers("/api/storekeeper/**").hasAnyRole("STOREKEEPER");
                     registry.requestMatchers("/api/teacher/**").hasAnyRole("TEACHER");
+                    registry.requestMatchers("/api/manager/**").hasAnyRole("MANAGER");
+                    registry.requestMatchers("/api/accountant/**").hasAnyRole("ACCOUNTANT");
                     registry.anyRequest().authenticated();
                 })
                 .addFilterBefore(jwtAuthenticationFilter,  UsernamePasswordAuthenticationFilter.class)
