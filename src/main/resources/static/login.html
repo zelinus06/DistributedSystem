@@ -84,29 +84,20 @@
     </div>
 
     <script>
+        // Danh sách trang dashboard cho từng vai trò
+        const dashboardRoutes = {
+            'ADMIN': '/html/admin.html',
+            'ACCOUNTANT': '/html/accountant.html',
+            'MANAGER': '/html/manager.html',
+            'TEACHER': '/html/teacher.html',
+            'STOREKEEPER': '/html/storekeeper.html'
+        };
+
         // Hàm để thiết lập cookie
         function setCookie(name, value, days) {
             const expires = new Date();
             expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
             document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
-        }
-
-        // Hàm để lấy cookie
-        function getCookie(name) {
-            const cookieName = `${name}=`;
-            const decodedCookie = decodeURIComponent(document.cookie);
-            const cookieArray = decodedCookie.split(';');
-            
-            for(let i = 0; i < cookieArray.length; i++) {
-                let cookie = cookieArray[i];
-                while (cookie.charAt(0) === ' ') {
-                    cookie = cookie.substring(1);
-                }
-                if (cookie.indexOf(cookieName) === 0) {
-                    return cookie.substring(cookieName.length, cookie.length);
-                }
-            }
-            return "";
         }
 
         document.getElementById('login-form').addEventListener('submit', function(e) {
@@ -117,41 +108,45 @@
             const errorMessage = document.getElementById('error-message');
             const successMessage = document.getElementById('success-message');
 
-            // Mock login data
-            const mockLoginData = {
-                username: 'thaiteacher',
-                password: 'hello'
-            };
-
-            // Mock login response
-            const mockLoginResponse = {
-                username: 'thaiteacher',
-                role: 'TEACHER',
-                token: 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0aGFpdGVhY2hlciIsInJvbGVzIjoiUk9MRV9URUFDSEVSIiwiaWF0IjoxNzM0MDcyNjg1LCJleHAiOjE3MzQwNzYyODV9.wa9Jbgyufbeqp1w98WCNHaxraQf40dg2lMYxiYwUgp4'
-            };
+            // Danh sách tài khoản mẫu
+            const mockLoginData = [
+                { username: 'admin', password: 'hello', role: 'ADMIN' },
+                { username: 'accountant', password: 'hello', role: 'ACCOUNTANT' },
+                { username: 'manager', password: 'hello', role: 'MANAGER' },
+                { username: 'thaiteacher', password: 'hello', role: 'TEACHER' },
+                { username: 'storekeeper', password: 'hello', role: 'STOREKEEPER' }
+            ];
 
             // Reset messages
             errorMessage.textContent = '';
             successMessage.textContent = '';
 
-            // Simulate login request
-            if (username === mockLoginData.username && password === mockLoginData.password) {
-                // Successful login
+            // Tìm tài khoản phù hợp
+            const userAccount = mockLoginData.find(
+                account => account.username === username && account.password === password
+            );
+
+            if (userAccount) {
+                // Đăng nhập thành công
                 successMessage.textContent = 'Đăng nhập thành công!';
                 
                 // Lưu thông tin vào cookies (lưu 1 ngày)
-                setCookie('username', mockLoginResponse.username, 1);
-                setCookie('role', mockLoginResponse.role, 1);
-                setCookie('token', mockLoginResponse.token, 1);
+                setCookie('username', userAccount.username, 1);
+                setCookie('role', userAccount.role, 1);
+                setCookie('token', 'mock-token-for-' + userAccount.username, 1);
 
-                // Kiểm tra và hiển thị cookies để demo
-                setTimeout(() => {
-                    const storedUsername = getCookie('username');
-                    const storedRole = getCookie('role');
-                    alert(`Chào mừng ${storedUsername}! Vai trò: ${storedRole}`);
-                }, 1000);
+                // Điều hướng đến trang dashboard tương ứng
+                const dashboardUrl = dashboardRoutes[userAccount.role];
+                if (dashboardUrl) {
+                    // Chuyển hướng sau 1 giây để người dùng kịp thấy thông báo thành công
+                    setTimeout(() => {
+                        window.location.href = dashboardUrl;
+                    }, 1000);
+                } else {
+                    errorMessage.textContent = 'Không tìm thấy trang dashboard cho vai trò này.';
+                }
             } else {
-                // Failed login
+                // Đăng nhập thất bại
                 errorMessage.textContent = 'Tên đăng nhập hoặc mật khẩu không đúng.';
             }
         });
