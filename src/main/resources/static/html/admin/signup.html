@@ -84,57 +84,66 @@
 </div>
 
 <script>
-// Mock API để tạo tài khoản
-function mockCreateAccount(request) {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            // Tạo một mật khẩu ngẫu nhiên
-            const randomPassword = Math.random().toString(36).substring(2, 10);
-            resolve({
-                username: request.username,
-                password: randomPassword
-            });
-        }, 500); // Giả lập thời gian chờ
-    });
-}
-
-// Xử lý khi gửi form
-document.getElementById("createAccountForm").addEventListener("submit", function(event) {
-    event.preventDefault(); // Ngăn chặn form gửi đi
-
-    // Lấy giá trị từ form
-    const username = document.getElementById("username").value.trim();
-    const role = document.getElementById("role").value;
-
-    if (!username || !role) {
-        alert("Vui lòng điền đầy đủ thông tin.");
-        return;
+    // Lấy JWT từ cookie
+    function getJWTToken() {
+        const value = document.cookie.match('(^|;)\\s*' + 'token' + '\\s*=\\s*([^;]+)');
+        return value ? value.pop() : '';
     }
 
-    // Tạo request body
-    const requestBody = {
-        username: username,
-        role: role
-    };
+    // Gửi request API để tạo tài khoản
+    function createAccount(request) {
+        const token = getJWTToken();
 
-    // Gửi mock request
-    mockCreateAccount(requestBody).then(response => {
-        // Hiển thị kết quả
-        const responseContainer = document.getElementById("responseContainer");
-        const responseMessage = document.getElementById("responseMessage");
-        
-        responseContainer.style.display = "block";
-        responseMessage.innerHTML = `
+        return fetch('http://localhost:8080/api/admin/createAccount', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(request)
+        })
+            .then(response => response.json())
+            .then(data => data)
+            .catch(error => { throw new Error('Lỗi khi gửi yêu cầu: ' + error.message); });
+    }
+
+    // Xử lý khi gửi form
+    document.getElementById("createAccountForm").addEventListener("submit", function(event) {
+        event.preventDefault(); // Ngăn chặn form gửi đi
+
+        // Lấy giá trị từ form
+        const username = document.getElementById("username").value.trim();
+        const role = document.getElementById("role").value;
+
+        if (!username || !role) {
+            alert("Vui lòng điền đầy đủ thông tin.");
+            return;
+        }
+
+        // Tạo request body
+        const requestBody = {
+            username: username,
+            role: role
+        };
+
+        // Gửi request API thực tế
+        createAccount(requestBody).then(response => {
+            // Hiển thị kết quả
+            const responseContainer = document.getElementById("responseContainer");
+            const responseMessage = document.getElementById("responseMessage");
+
+            responseContainer.style.display = "block";
+            responseMessage.innerHTML = `
             <strong>Tên Đăng Nhập:</strong> ${response.username}<br>
             <strong>Mật Khẩu:</strong> ${response.password}
         `;
 
-        // Reset form
-        document.getElementById("createAccountForm").reset();
-    }).catch(error => {
-        alert("Đã xảy ra lỗi: " + error.message);
+            // Reset form
+            document.getElementById("createAccountForm").reset();
+        }).catch(error => {
+            alert("Đã xảy ra lỗi: " + error.message);
+        });
     });
-});
 </script>
 
 </body>
