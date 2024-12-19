@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo Yêu Cầu Mua Sắm Trang Thiết Bị</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, button, textarea {
+            margin: 5px 0;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+        .material-item {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tạo Yêu Cầu Mua Sắm Trang Thiết Bị</h1>
+    <form id="orderForm">
+        <label for="purpose">Mục Đích Mua Sắm:</label>
+        <textarea id="purpose" placeholder="Nhập mục đích mua sắm..." required></textarea>
+
+        <div id="materialsContainer">
+            <div class="material-item">
+                <label for="materialName">Tên Thiết Bị:</label>
+                <input type="text" class="materialName" placeholder="Nhập tên thiết bị" required />
+
+                <label for="materialQuantity">Số Lượng:</label>
+                <input type="number" class="materialQuantity" placeholder="Nhập số lượng" required />
+
+                <label for="materialUnit">Đơn Vị:</label>
+                <input type="text" class="materialUnit" placeholder="Nhập đơn vị (ví dụ: pcs)" required />
+
+                <label for="materialPrice">Giá:</label>
+                <input type="number" class="materialPrice" placeholder="Nhập giá mỗi đơn vị" required />
+            </div>
+        </div>
+
+        <button type="button" onclick="addMaterialInput()">Thêm Thiết Bị Khác</button>
+        <button type="button" onclick="createOrder()">Gửi Yêu Cầu Mua Sắm</button>
+    </form>
+    <p id="statusMessage"></p>
+
+    <script>
+        // Hàm thêm phần nhập liệu cho thiết bị mới
+        function addMaterialInput() {
+            const materialsContainer = document.getElementById("materialsContainer");
+            const materialItem = document.createElement("div");
+            materialItem.className = "material-item";
+
+            materialItem.innerHTML = `
+                <label for="materialName">Tên Thiết Bị:</label>
+                <input type="text" class="materialName" placeholder="Nhập tên thiết bị" required />
+
+                <label for="materialQuantity">Số Lượng:</label>
+                <input type="number" class="materialQuantity" placeholder="Nhập số lượng" required />
+
+                <label for="materialUnit">Đơn Vị:</label>
+                <input type="text" class="materialUnit" placeholder="Nhập đơn vị (ví dụ: pcs)" required />
+
+                <label for="materialPrice">Giá:</label>
+                <input type="number" class="materialPrice" placeholder="Nhập giá mỗi đơn vị" required />
+            `;
+            materialsContainer.appendChild(materialItem);
+        }
+
+        // Hàm gửi yêu cầu tạo đơn hàng mua sắm
+        async function createOrder() {
+            const statusMessage = document.getElementById("statusMessage");
+            const purpose = document.getElementById("purpose").value.trim();
+
+            // Lấy danh sách vật liệu từ form
+            const materials = Array.from(document.querySelectorAll(".material-item")).map(item => ({
+                name: item.querySelector(".materialName").value.trim(),
+                quantity: parseInt(item.querySelector(".materialQuantity").value, 10),
+                unit: item.querySelector(".materialUnit").value.trim(),
+                price: parseInt(item.querySelector(".materialPrice").value, 10)
+            }));
+
+            // Kiểm tra đầu vào
+            if (!purpose || materials.some(m => !m.name || isNaN(m.quantity) || !m.unit || isNaN(m.price))) {
+                statusMessage.textContent = "Vui lòng nhập đầy đủ thông tin.";
+                statusMessage.className = "error";
+                return;
+            }
+
+            // Chuẩn bị dữ liệu yêu cầu
+            const requestData = {
+                materials,
+                purpose
+            };
+
+            try {
+                // Gửi yêu cầu tới API
+                const response = await fetch("http://localhost:8080/api/storekeeper/order/create", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (!response.ok) {
+                    throw new Error("Không thể gửi yêu cầu. Kiểm tra lại thông tin.");
+                }
+
+                const responseText = await response.text(); // Phản hồi từ máy chủ
+                statusMessage.textContent = responseText || "Gửi yêu cầu thành công!";
+                statusMessage.className = "success";
+
+                // Xóa thông tin trong form
+                document.getElementById("orderForm").reset();
+                document.getElementById("materialsContainer").innerHTML = ""; // Xóa vật liệu cũ
+                addMaterialInput(); // Thêm khung nhập vật liệu đầu tiên
+            } catch (error) {
+                console.error("Lỗi:", error);
+                statusMessage.textContent = "Đã xảy ra lỗi khi gửi yêu cầu.";
+                statusMessage.className = "error";
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách Yêu cầu Vật tư</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Danh sách Yêu cầu Vật tư</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Người Yêu Cầu</th>
+                <th>Vật Tư</th>
+                <th>Số Lượng</th>
+                <th>Trạng Thái</th>
+                <th>Ngày Tạo</th>
+                <th>Ngày Phê Duyệt</th>
+                <th>Người Phê Duyệt</th>
+            </tr>
+        </thead>
+        <tbody id="request-table-body">
+            <!-- Dữ liệu sẽ được thêm vào đây -->
+        </tbody>
+    </table>
+
+    <script>
+        // Hàm fetch data từ API và render ra bảng
+        async function fetchAndRenderRequests() {
+            try {
+                const response = await fetch("http://localhost:8080/api/teacher/request/view");
+                const data = await response.json();
+
+                const tableBody = document.getElementById("request-table-body");
+                tableBody.innerHTML = ""; // Xóa dữ liệu cũ
+
+                // Lặp qua từng request và render ra bảng
+                data.content.forEach((request, index) => {
+                    const row = document.createElement("tr");
+                    const materials = request.materials.map(item => `${item.name}: ${item.quantity} ${item.unit}`).join("<br>");
+                    
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${request.requesterName}</td>
+                        <td>${materials}</td>
+                        <td>${request.materials.reduce((sum, item) => sum + item.quantity, 0)} pieces</td>
+                        <td>${request.status}</td>
+                        <td>${request.date}</td>
+                        <td>${request.approvedDate || "--"}</td>
+                        <td>${request.approvedBy || "--"}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Lỗi khi fetch dữ liệu:", error);
+            }
+        }
+
+        // Gọi hàm fetchAndRenderRequests khi trang tải
+        fetchAndRenderRequests();
+    </script>
+</body>
+</html>
