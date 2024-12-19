@@ -220,21 +220,21 @@
 
             requests.forEach(request => {
                 const row = document.createElement('tr');
-                
+
                 // Tạo HTML cho từng yêu cầu
                 row.innerHTML = `
                     <td>${request.id}</td>
                     <td>${request.requesterName}</td>
                     <td>
                         <ul class="materials-list">
-                            ${request.materials.map(material => 
+                            ${request.materials.map(material =>
                                 `<li>${material.name}: ${material.quantity} ${material.unit}</li>`
                             ).join('')}
                         </ul>
                     </td>
                     <td>
                         <ul class="classrooms-list">
-                            ${request.classrooms.map(classroom => 
+                            ${request.classrooms.map(classroom =>
                                 `<li>${classroom}</li>`
                             ).join('')}
                         </ul>
@@ -289,13 +289,13 @@
                 <p><strong>Mục Đích:</strong> ${request.purpose}</p>
                 <h3>Danh Sách Vật Tư:</h3>
                 <ul>
-                    ${request.materials.map(material => 
+                    ${request.materials.map(material =>
                         `<li>${material.name}: ${material.quantity} ${material.unit}</li>`
                     ).join('')}
                 </ul>
                 <h3>Phòng Học:</h3>
                 <ul>
-                    ${request.classrooms.map(classroom => 
+                    ${request.classrooms.map(classroom =>
                         `<li>${classroom}</li>`
                     ).join('')}
                 </ul>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Vật tư Giáo viên</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .supplies-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .supplies-table th,
+        .supplies-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .supplies-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .quantity-input {
+            width: 80px;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .update-btn {
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .update-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .message {
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Quản lý Vật tư trong Kho</h1>
+    <div id="message"></div>
+    <table class="supplies-table">
+        <thead>
+        <tr>
+            <th>Tên vật tư</th>
+            <th>Số lượng</th>
+            <th>Đơn vị</th>
+            <th>Thao tác</th>
+        </tr>
+        </thead>
+        <tbody id="supplies-list">
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Mock data
+    const mockData = [
+        {
+            "name": "Projector Bulb",
+            "quantity": 12,
+            "unit": "pieces"
+        },
+        {
+            "name": "Whiteboard Marker",
+            "quantity": 10,
+            "unit": "pieces"
+        }
+    ];
+
+    // Hiển thị thông báo
+    function showMessage(text, isError = false) {
+        const messageDiv = document.getElementById('message');
+        messageDiv.textContent = text;
+        messageDiv.className = `message ${isError ? 'error' : 'success'}`;
+        setTimeout(() => {
+            messageDiv.textContent = '';
+            messageDiv.className = 'message';
+        }, 3000);
+    }
+
+    // Cập nhật số lượng
+    function updateQuantity(index) {
+        const newQuantity = parseInt(document.getElementById(`quantity-${index}`).value);
+        if (isNaN(newQuantity) || newQuantity < 0) {
+            showMessage('Số lượng không hợp lệ!', true);
+            return;
+        }
+
+        // Trong thực tế, đây sẽ là một API call
+        mockData[index].quantity = newQuantity;
+        renderSupplies();
+        showMessage('Cập nhật thành công!');
+    }
+
+    // Render danh sách vật tư
+    function renderSupplies() {
+        const suppliesList = document.getElementById('supplies-list');
+        suppliesList.innerHTML = mockData.map((item, index) => `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>
+                        <input type="number" id="quantity-${index}"
+                               class="quantity-input"
+                               value="${item.quantity}"
+                               min="0">
+                    </td>
+                    <td>${item.unit}</td>
+                    <td>
+                        <button class="update-btn"
+                                onclick="updateQuantity(${index})">
+                            Cập nhật
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+    }
+
+    // Khởi tạo dữ liệu ban đầu
+    renderSupplies();
+</script>
+</body>
+</html>

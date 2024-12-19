@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Yêu Cầu Vật Tư</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 60%;
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chi Tiết Yêu Cầu Vật Tư</h1>
+    <label for="requestId">Nhập ID Yêu Cầu:</label>
+    <input type="text" id="requestId" placeholder="Nhập ID tại đây" />
+    <button onclick="fetchRequestDetail()">Xem Chi Tiết</button>
+
+    <h2>Thông Tin Yêu Cầu</h2>
+    <div id="request-detail">
+        <!-- Chi tiết yêu cầu sẽ được hiển thị ở đây -->
+    </div>
+
+    <script>
+        async function fetchRequestDetail() {
+            const requestId = document.getElementById("requestId").value.trim();
+            const detailDiv = document.getElementById("request-detail");
+
+            if (!requestId) {
+                alert("Vui lòng nhập ID yêu cầu.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/api/teacher/request/view/${requestId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Lỗi HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+                detailDiv.innerHTML = renderRequestDetail(data);
+            } catch (error) {
+                console.error("Lỗi khi fetch dữ liệu:", error);
+                detailDiv.innerHTML = `<p style="color: red;">Không tìm thấy yêu cầu hoặc xảy ra lỗi: ${error.message}</p>`;
+            }
+        }
+
+        function renderRequestDetail(request) {
+            const materials = request.materials.map(
+                (item) => `<li>${item.name}: ${item.quantity} ${item.unit}</li>`
+            ).join("");
+
+            return `
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <td>${request.id}</td>
+                    </tr>
+                    <tr>
+                        <th>Người Yêu Cầu</th>
+                        <td>${request.requesterName}</td>
+                    </tr>
+                    <tr>
+                        <th>Loại</th>
+                        <td>${request.type}</td>
+                    </tr>
+                    <tr>
+                        <th>Vật Tư</th>
+                        <td><ul>${materials}</ul></td>
+                    </tr>
+                    <tr>
+                        <th>Phòng Học</th>
+                        <td>${request.classrooms.join(", ")}</td>
+                    </tr>
+                    <tr>
+                        <th>Học Kỳ</th>
+                        <td>${request.semester}</td>
+                    </tr>
+                    <tr>
+                        <th>Mục Đích</th>
+                        <td>${request.purpose}</td>
+                    </tr>
+                    <tr>
+                        <th>Ngày Tạo</th>
+                        <td>${request.date}</td>
+                    </tr>
+                    <tr>
+                        <th>Trạng Thái</th>
+                        <td>${request.status}</td>
+                    </tr>
+                    <tr>
+                        <th>Người Phê Duyệt</th>
+                        <td>${request.approvedBy || "--"}</td>
+                    </tr>
+                    <tr>
+                        <th>Ngày Phê Duyệt</th>
+                        <td>${request.approvedDate || "--"}</td>
+                    </tr>
+                    <tr>
+                        <th>Ghi Chú</th>
+                        <td>${request.note || "--"}</td>
+                    </tr>
+                </table>
+            `;
+        }
+    </script>
+</body>
+</html>

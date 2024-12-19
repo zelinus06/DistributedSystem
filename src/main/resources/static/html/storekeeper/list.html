@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Cung Cấp Vật Tư</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('images/background.jpg'); /* Đặt đường dẫn ảnh nền trong thư mục images */
+            background-size: cover;
+            background-position: center;
+        }
+        .container {
+            width: 70%; 
+            max-width: 1000px; 
+            margin: 80px auto 20px auto; 
+            background-color: rgba(255, 255, 255, 0.8); 
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+        }
+        h1 {
+            text-align: center;
+        }
+        
+        .header-row {
+            display: flex;
+            justify-content: center; 
+            align-items: center; 
+        }
+        .center-button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .center-button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .loading {
+            color: blue;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Danh Sách Các Yêu Cầu Cung Cấp Vật Tư</h1>
+        <!-- Nút tải danh sách -->
+        <div class="header-row">
+            <button class="center-button" onclick="fetchMaterialRequests()">Tải Danh Sách</button>
+        </div>
+        <p id="statusMessage"></p>
+        <table id="requestsTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Mã Yêu Cầu</th>
+                    <th>Tên Giáo Viên</th>
+                    <th>Phòng Học</th>
+                    <th>Học Kỳ</th>
+                    <th>Mục Đích</th>
+                    <th>Danh Sách Vật Tư</th>
+                    <th>Trạng Thái</th>
+                    <th>Ngày</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        async function fetchMaterialRequests() {
+            const statusMessage = document.getElementById("statusMessage");
+            const requestsTable = document.getElementById("requestsTable");
+            const tableBody = requestsTable.querySelector("tbody");
+
+            statusMessage.textContent = "Đang tải dữ liệu...";
+            statusMessage.className = "loading";
+            requestsTable.style.display = "none";
+            tableBody.innerHTML = "";
+
+            try {
+                const response = await fetch("http://localhost:8080/api/storekeeper/provide/view", {
+                    method: "GET"
+                });
+
+                if (!response.ok) {
+                    throw new Error("Không thể tải dữ liệu từ server");
+                }
+
+                const data = await response.json();
+                if (data.length === 0) {
+                    statusMessage.textContent = "Không có dữ liệu!";
+                    statusMessage.className = "error";
+                    return;
+                }
+
+                data.forEach(request => {
+                    const materials = request.materials.map(material => 
+                        `${material.name} (${material.quantity} ${material.unit})`
+                    ).join(", ");
+
+                    const classrooms = request.classrooms.join(", ");
+
+                    const row = ` 
+                        <tr>
+                            <td>${request.id}</td>
+                            <td>${request.requestId}</td>
+                            <td>${request.teacherName}</td>
+                            <td>${classrooms}</td>
+                            <td>${request.semester}</td>
+                            <td>${request.purpose}</td>
+                            <td>${materials}</td>
+                            <td>${request.status}</td>
+                            <td>${request.date}</td>
+                        </tr>
+                    `;
+
+                    tableBody.innerHTML += row;
+                });
+
+                statusMessage.textContent = "";
+                requestsTable.style.display = "table";
+            } catch (error) {
+                console.error("Lỗi:", error);
+                statusMessage.textContent = "Lỗi khi tải dữ liệu!";
+                statusMessage.className = "error";
+            }
+        }
+    </script>
+</body>
+</html>
