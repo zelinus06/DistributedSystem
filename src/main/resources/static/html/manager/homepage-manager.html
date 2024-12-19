@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ Giám Đốc</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        .header {
+            background-color: #343a40;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .navigation {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .navigation a {
+            text-decoration: none;
+            display: block;
+            padding: 15px;
+            text-align: center;
+            background-color: #343a40;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .navigation a:hover {
+            background-color: #495057;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px;
+            color: #888;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Trang Chủ - Vai Trò: Giám Đốc</h2>
+    </div>
+
+    <div class="container">
+        <h1>Chào Mừng Giám Đốc</h1>
+        <p>Vui lòng chọn một chức năng bên dưới:</p>
+        <div class="navigation">
+            <a href="view-supply-requests.html">Xem Yêu Cầu Cung Cấp Vật Tư</a>
+            <a href="view-purchase-requests.html">Xem Yêu Cầu Mua Sắm</a>
+            <a href="view-materials-storage.html">Xem Kho Vật Tư</a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Hệ Thống Quản Lý Vật Tư</p>
+    </div>
+</body>
+</html>

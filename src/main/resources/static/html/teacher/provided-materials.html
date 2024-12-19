@@ -32,6 +32,26 @@
             margin-bottom: 20px;
         }
 
+        .navigation {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .navigation a {
+            text-decoration: none;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .navigation a:hover {
+            background-color: #45a049;
+        }
+
         .supplies-table {
             width: 100%;
             border-collapse: collapse;
@@ -90,7 +110,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>Quản lý Vật tư trong Kho</h1>
+        <div class="navigation">
+            <a href="homepage-teacher.html">Quay về Trang Chủ</a>
+        </div>
+        <h1>Quản lý vật tư của giáo viên</h1>
         <div id="message"></div>
         <table class="supplies-table">
             <thead>

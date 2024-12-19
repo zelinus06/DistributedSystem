@@ -66,77 +66,90 @@
     </style>
 </head>
 <body>
-<div class="login-container">
-    <h2>Đăng Nhập</h2>
-    <form id="login-form">
-        <div class="form-group">
-            <label for="username">Tên Đăng Nhập</label>
-            <input type="text" id="username" name="username" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Mật Khẩu</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <button type="submit" class="btn">Đăng Nhập</button>
-        <div id="error-message"></div>
-        <div id="success-message"></div>
-    </form>
-</div>
+    <div class="login-container">
+        <h2>Đăng Nhập</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Tên Đăng Nhập</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Mật Khẩu</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn">Đăng Nhập</button>
+            <div id="error-message"></div>
+            <div id="success-message"></div>
+        </form>
+    </div>
 
-<script>
-    // Hàm để thiết lập cookie
-    function setCookie(name, value, days) {
-        const expires = new Date();
-        expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
-        document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
-    }
+    <script>
+        // Danh sách trang dashboard cho từng vai trò
+        const dashboardRoutes = {
+            'ADMIN': '/html/admin.html',
+            'ACCOUNTANT': '/html/accountant.html',
+            'MANAGER': '/html/manager.html',
+            'TEACHER': '/html/teacher.html',
+            'STOREKEEPER': '/html/storekeeper.html'
+        };
 
-    document.getElementById('login-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const errorMessage = document.getElementById('error-message');
-        const successMessage = document.getElementById('success-message');
-
-        // Reset messages
-        errorMessage.textContent = '';
-        successMessage.textContent = '';
-
-        try {
-            // Gửi request đến API đăng nhập
-            const response = await fetch('http://localhost:8080/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username, password })
-            });
-
-            // Kiểm tra nếu response thành công
-            if (response.ok) {
-                const data = await response.json();
-                // Hiển thị thông báo thành công
-                successMessage.textContent = 'Đăng nhập thành công!';
-                // Lưu thông tin vào cookies
-                setCookie('username', data.username, 1);
-                setCookie('role', data.role, 1);
-                setCookie('token', data.token, 1);
-                // Chuyển hướng đến trang dashboard tương ứng
-                setTimeout(() => {
-                    window.location.href = data.DashboardUrl;
-                }, 1000);
-            } else {
-                // Xử lý khi response lỗi
-                const errorData = await response.json();
-                errorMessage.textContent = errorData.message || 'Tên đăng nhập hoặc mật khẩu không đúng.';
-            }
-        } catch (error) {
-            // Xử lý lỗi mạng hoặc hệ thống
-            errorMessage.textContent = 'Có lỗi xảy ra. Vui lòng thử lại!';
-            console.error('Error:', error);
+        // Hàm để thiết lập cookie
+        function setCookie(name, value, days) {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
         }
-    });
-</script>
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+            const successMessage = document.getElementById('success-message');
+
+            // Danh sách tài khoản mẫu
+            const mockLoginData = [
+                { username: 'admin', password: 'hello', role: 'ADMIN' },
+                { username: 'accountant', password: 'hello', role: 'ACCOUNTANT' },
+                { username: 'manager', password: 'hello', role: 'MANAGER' },
+                { username: 'thaiteacher', password: 'hello', role: 'TEACHER' },
+                { username: 'storekeeper', password: 'hello', role: 'STOREKEEPER' }
+            ];
+
+            // Reset messages
+            errorMessage.textContent = '';
+            successMessage.textContent = '';
+
+            // Tìm tài khoản phù hợp
+            const userAccount = mockLoginData.find(
+                account => account.username === username && account.password === password
+            );
+
+            if (userAccount) {
+                // Đăng nhập thành công
+                successMessage.textContent = 'Đăng nhập thành công!';
+                
+                // Lưu thông tin vào cookies (lưu 1 ngày)
+                setCookie('username', userAccount.username, 1);
+                setCookie('role', userAccount.role, 1);
+                setCookie('token', 'mock-token-for-' + userAccount.username, 1);
+
+                // Điều hướng đến trang dashboard tương ứng
+                const dashboardUrl = dashboardRoutes[userAccount.role];
+                if (dashboardUrl) {
+                    // Chuyển hướng sau 1 giây để người dùng kịp thấy thông báo thành công
+                    setTimeout(() => {
+                        window.location.href = dashboardUrl;
+                    }, 1000);
+                } else {
+                    errorMessage.textContent = 'Không tìm thấy trang dashboard cho vai trò này.';
+                }
+            } else {
+                // Đăng nhập thất bại
+                errorMessage.textContent = 'Tên đăng nhập hoặc mật khẩu không đúng.';
+            }
+        });
+    </script>
 </body>
 </html>
