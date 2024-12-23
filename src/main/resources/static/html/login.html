@@ -12,7 +12,8 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f2f5;
+            background: url('../img/hust-c1-b.jpg') no-repeat center center fixed; 
+            background-size: cover;
         }
         .login-container {
             background-color: white;
@@ -20,6 +21,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             width: 300px;
+            backdrop-filter: blur(5px); /* Làm mờ nền bên dưới */
         }
         .login-container h2 {
             text-align: center;
@@ -84,13 +86,13 @@
     </div>
 
     <script>
-        // Danh sách trang dashboard cho từng vai trò
+        // Danh sách trang homepage cho từng vai trò
         const dashboardRoutes = {
-            'ADMIN': '/html/admin.html',
-            'ACCOUNTANT': '/html/accountant.html',
-            'MANAGER': '/html/manager.html',
-            'TEACHER': '/html/teacher.html',
-            'STOREKEEPER': '/html/storekeeper.html'
+            'ADMIN': './admin/signup.html',
+            'ACCOUNTANT': './accountant/homepage-accountant.html',
+            'MANAGER': './manager/homepage-manager.html',
+            'TEACHER': './teacher/homepage-teacher.html',
+            'STOREKEEPER': './storekeeper/homepage-storekeeper.html'
         };
 
         // Hàm để thiết lập cookie
