@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cập Nhật Yêu Cầu Vật Tư</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+            display: block;
+        }
+        input, button, select {
+            margin: 5px 0;
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .material-entry {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .remove-btn {
+            background-color: red;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .close-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Cập Nhật Yêu Cầu Vật Tư</h1>
+
+    <label for="requestId">Mã Yêu Cầu:</label>
+    <input type="text" id="requestId" placeholder="Nhập mã yêu cầu (ID)">
+
+    <label for="semester">Học Kỳ:</label>
+    <input type="text" id="semester" placeholder="Nhập học kỳ">
+
+    <label for="purpose">Mục Đích:</label>
+    <input type="text" id="purpose" placeholder="Nhập mục đích">
+
+    <label for="classrooms">Phòng Học (cách nhau dấu phẩy):</label>
+    <input type="text" id="classrooms" placeholder="Nhập phòng học">
+
+    <!-- Vật tư -->
+    <h3>Danh Sách Vật Tư</h3>
+    <div id="materialsContainer"></div>
+    <button type="button" onclick="addMaterial()">+ Thêm Vật Tư</button>
+
+    <!-- Nút Cập Nhật -->
+    <button type="button" onclick="updateRequest()">Cập Nhật Yêu Cầu</button>
+
+    <!-- Modal for success notification -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <h2>Cập Nhật Thành Công!</h2>
+            <button class="close-btn" onclick="closeModal()">Đóng</button>
+        </div>
+    </div>
+
+    <script>
+        // Thêm vật tư vào danh sách
+        function addMaterial() {
+            const container = document.getElementById("materialsContainer");
+            const materialEntry = document.createElement("div");
+            materialEntry.classList.add("material-entry");
+            materialEntry.innerHTML = `
+                <label>Tên Vật Tư:</label>
+                <input type="text" class="material-name" placeholder="Nhập tên vật tư">
+                <label>Số Lượng:</label>
+                <input type="number" class="material-quantity" placeholder="Nhập số lượng">
+                <label>Đơn Vị:</label>
+                <input type="text" class="material-unit" placeholder="Nhập đơn vị">
+                <button type="button" class="remove-btn" onclick="removeMaterial(this)">Xóa</button>
+            `;
+            container.appendChild(materialEntry);
+        }
+
+        // Xóa vật tư
+        function removeMaterial(button) {
+            button.parentElement.remove();
+        }
+
+        // Hiển thị modal
+        function showModal() {
+            const modal = document.getElementById("successModal");
+            modal.style.display = "flex";
+        }
+
+        // Đóng modal
+        function closeModal() {
+            const modal = document.getElementById("successModal");
+            modal.style.display = "none";
+        }
+
+        // Cập nhật yêu cầu vật tư
+        async function updateRequest() {
+            const requestId = document.getElementById("requestId").value.trim();
+            const semester = document.getElementById("semester").value.trim();
+            const purpose = document.getElementById("purpose").value.trim();
+            const classroomsInput = document.getElementById("classrooms").value.trim();
+        
+            // Lấy danh sách vật tư
+            const materials = [];
+            document.querySelectorAll(".material-entry").forEach(entry => {
+                const name = entry.querySelector(".material-name").value.trim();
+                const quantity = entry.querySelector(".material-quantity").value.trim();
+                const unit = entry.querySelector(".material-unit").value.trim();
+                if (name && quantity && unit) {
+                    materials.push({
+                        name: name,
+                        quantity: parseInt(quantity),
+                        unit: unit
+                    });
+                }
+            });
+        
+            // Kiểm tra dữ liệu đầu vào
+            if (!requestId || !semester || !purpose || materials.length === 0) {
+                alert("Vui lòng điền đầy đủ thông tin!");
+                return;
+            }
+        
+            // Định nghĩa payload
+            const payload = {
+                id: requestId,
+                requesterName: "thaiteacher",
+                topicName: "SupplyRequest",
+                type: "MaterialSupply",
+                materials: materials,
+                classrooms: classroomsInput.split(",").map(item => item.trim()),
+                semester: semester,
+                purpose: purpose,
+                date: new Date().toISOString(),
+                status: "pending"
+            };
+        
+            try {
+                // Gửi API
+                const response = await fetch(`http://localhost:8080/api/teacher/request/view/${requestId}/update`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+        
+                if (response.ok) {
+                    // Hiển thị modal thành công
+                    showModal();
+                } else {
+                    // Xử lý lỗi trả về từ server
+                    const errorData = await response.text();
+                    alert(`Lỗi khi cập nhật: ${errorData}`);
+                }
+            } catch (error) {
+                // Xử lý lỗi kết nối
+                console.error("Lỗi:", error);
+                alert("Không thể kết nối đến server.");
+            }
+        }
+    </script>
+</body>
+</html>

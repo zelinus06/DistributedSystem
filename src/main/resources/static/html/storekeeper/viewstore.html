@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý vật liệu trong kho</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('images/background.jpg'); /* Đặt đường dẫn ảnh nền trong thư mục images */
+            background-size: cover;
+            background-position: center;
+        }
+        .container {
+            width: 70%; /* Giảm chiều rộng khung xuống 70% */
+            max-width: 1000px; /* Giảm max-width để khung không quá rộng */
+            margin: 80px auto 20px auto; /* Tăng khoảng cách phía trên (margin-top) để khung hạ thấp xuống một chút */
+            background-color: rgba(255, 255, 255, 0.8); /* Nền màu trắng bán trong suốt */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Thêm bóng cho khung */
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        /* Căn chỉnh các phần tử theo chiều ngang */
+        .header-row {
+            display: flex;
+            justify-content: space-between; /* Căn đều không gian giữa nút và phần tìm kiếm */
+            align-items: center; /* Căn giữa các phần tử theo chiều dọc */
+        }
+        .header-row button, .header-row input {
+            margin: 10px;
+        }
+        /* Căn giữa nút */
+        .center-button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .center-button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .loading {
+            color: blue;
+        }
+        .error {
+            color: red;
+        }
+        /* Tạo phần tử tìm kiếm và nút tìm kiếm nằm ngang */
+        .search-container {
+            display: flex;
+            align-items: center; /* Căn giữa theo chiều dọc */
+            margin-left: 50px; 
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 80%;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quản lý vật liệu trong kho</h1>
+
+        <!-- Phần chứa nút và tìm kiếm vật liệu, sử dụng Flexbox để căn chỉnh ngang -->
+        <div class="header-row">
+            <!-- Nút xem toàn bộ vật liệu -->
+            <button class="center-button" onclick="viewAllMaterials()">Xem tất cả vật liệu trong kho</button>
+
+            <!-- Phần tìm kiếm vật liệu -->
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Nhập tên vật liệu cần tìm" />
+                <button onclick="searchMaterial()">Tìm kiếm</button>
+            </div>
+        </div>
+
+        <p id="viewStatusMessage"></p>
+        <table id="allMaterialsTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Tên vật liệu</th>
+                    <th>Số lượng</th>
+                    <th>Đơn vị</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <hr>
+
+        <p id="searchStatusMessage"></p>
+        <table id="searchResultTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Tên vật liệu</th>
+                    <th>Số lượng</th>
+                    <th>Đơn vị</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        // Hàm xem tất cả vật liệu trong kho
+        async function viewAllMaterials() {
+            const statusMessage = document.getElementById("viewStatusMessage");
+            const materialsTable = document.getElementById("allMaterialsTable");
+            const tableBody = materialsTable.querySelector("tbody");
+
+            statusMessage.textContent = "Đang tải danh sách vật liệu...";
+            statusMessage.className = "loading";
+            materialsTable.style.display = "none";
+            tableBody.innerHTML = "";
+
+            try {
+                const response = await fetch("http://localhost:8080/api/storekeeper/material/view", {
+                    method: "GET"
+                });
+
+                if (!response.ok) {
+                    throw new Error("Không thể lấy dữ liệu từ máy chủ");
+                }
+
+                const materials = await response.json();
+
+                if (materials.length === 0) {
+                    statusMessage.textContent = "Không có vật liệu nào trong kho.";
+                    statusMessage.className = "error";
+                    return;
+                }
+
+                materials.forEach(material => {
+                    const row = `
+                        <tr>
+                            <td>${material.name}</td>
+                            <td>${material.quantity}</td>
+                            <td>${material.unit}</td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+
+                statusMessage.textContent = "";
+                materialsTable.style.display = "table";
+            } catch (error) {
+                console.error("Lỗi:", error);
+                statusMessage.textContent = "Đã xảy ra lỗi khi tải danh sách vật liệu.";
+                statusMessage.className = "error";
+            }
+        }
+
+        // Hàm tìm kiếm vật liệu
+        async function searchMaterial() {
+            const statusMessage = document.getElementById("searchStatusMessage");
+            const materialsTable = document.getElementById("searchResultTable");
+            const tableBody = materialsTable.querySelector("tbody");
+            const searchInput = document.getElementById("searchInput").value.trim();
+
+            if (!searchInput) {
+                statusMessage.textContent = "Vui lòng nhập từ khóa tìm kiếm.";
+                statusMessage.className = "error";
+                return;
+            }
+
+            statusMessage.textContent = "Đang tìm kiếm...";
+            statusMessage.className = "loading";
+            materialsTable.style.display = "none";
+            tableBody.innerHTML = "";
+
+            try {
+                const response = await fetch(`http://localhost:8080/api/storekeeper/material/search?materialName=${encodeURIComponent(searchInput)}`, {
+                    method: "GET"
+                });
+
+                if (!response.ok) {
+                    throw new Error("Không thể lấy dữ liệu từ máy chủ");
+                }
+
+                const material = await response.json();
+
+                if (!material || !material.name) {
+                    statusMessage.textContent = "Không tìm thấy vật liệu.";
+                    statusMessage.className = "error";
+                    return;
+                }
+
+                const row = `
+                    <tr>
+                        <td>${material.name}</td>
+                        <td>${material.quantity}</td>
+                        <td>${material.unit}</td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+
+                statusMessage.textContent = "";
+                materialsTable.style.display = "table";
+            } catch (error) {
+                console.error("Lỗi:", error);
+                statusMessage.textContent = "Đã xảy ra lỗi khi tìm kiếm vật liệu.";
+                statusMessage.className = "error";
+            }
+        }
+    </script>
+</body>
+</html>

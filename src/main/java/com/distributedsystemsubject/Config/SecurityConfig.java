@@ -38,6 +38,7 @@ public class SecurityConfig {
                     registry.requestMatchers("/api/teacher/**").hasAnyRole("TEACHER");
                     registry.requestMatchers("/api/manager/**").hasAnyRole("MANAGER");
                     registry.requestMatchers("/api/accountant/**").hasAnyRole("ACCOUNTANT");
+                    registry.requestMatchers("/api/admin/**").hasAnyRole("ADMIN");
                     registry.anyRequest().authenticated();
                 })
                 .addFilterBefore(jwtAuthenticationFilter,  UsernamePasswordAuthenticationFilter.class)

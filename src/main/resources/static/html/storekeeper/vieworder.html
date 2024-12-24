@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Yêu Cầu Mua Sắm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .status-pending {
+            color: orange;
+        }
+        .status-approved {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Danh Sách Yêu Cầu Mua Sắm Trang Thiết Bị</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Người Yêu Cầu</th>
+                <th>Loại Yêu Cầu</th>
+                <th>Danh Sách Vật Liệu</th>
+                <th>Mục Đích</th>
+                <th>Ngày Tạo</th>
+                <th>Trạng Thái</th>
+            </tr>
+        </thead>
+        <tbody id="orderTableBody">
+            <!-- Nội dung sẽ được thêm động -->
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchOrderRequests() {
+            const tableBody = document.getElementById("orderTableBody");
+
+            try {
+                const response = await fetch("http://localhost:8080/api/storekeeper/order/view");
+                if (!response.ok) {
+                    throw new Error("Không thể tải danh sách yêu cầu.");
+                }
+
+                const orders = await response.json();
+
+                // Xóa nội dung cũ trong bảng
+                tableBody.innerHTML = "";
+
+                // Hiển thị từng yêu cầu trong bảng
+                orders.forEach(order => {
+                    const row = document.createElement("tr");
+
+                    row.innerHTML = `
+                        <td>${order.id}</td>
+                        <td>${order.requesterName}</td>
+                        <td>${order.type}</td>
+                        <td>
+                            <ul>
+                                ${order.materials.map(material => `
+                                    <li>${material.name} - ${material.quantity} ${material.unit} - ${material.price} VND</li>
+                                `).join("")}
+                            </ul>
+                        </td>
+                        <td>${order.purpose}</td>
+                        <td>${order.date}</td>
+                        <td class="${order.status === "pending" ? "status-pending" : "status-approved"}">
+                            ${order.status === "pending" ? "Chờ duyệt" : "Đã duyệt"}
+                        </td>
+                    `;
+
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Lỗi khi tải yêu cầu:", error);
+                tableBody.innerHTML = `<tr><td colspan="7">Không thể tải danh sách yêu cầu. Vui lòng thử lại sau.</td></tr>`;
+            }
+        }
+
+        // Gọi hàm fetch khi tải trang
+        fetchOrderRequests();
+    </script>
+</body>
+</html>
