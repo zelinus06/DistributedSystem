@@ -3,150 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Yêu Cầu Vật Tư</title>
+    <title>Supply Request Management</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
+            margin: 20px;
+            background: #f5f5f5;
         }
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background-color: white;
+            background: white;
             padding: 20px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
             border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-        }
-        .request-list {
+        table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 20px;
         }
-        .request-list th, .request-list td {
-            border: 1px solid #ddd;
+        th, td {
             padding: 12px;
             text-align: left;
+            border-bottom: 1px solid #ddd;
         }
-        .request-list th {
-            background-color: #f2f2f2;
-            font-weight: bold;
+        th {
+            background-color: #f8f9fa;
         }
-        .status-approved {
-            color: green;
-            font-weight: bold;
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
         }
         .status-pending {
-            color: orange;
-            font-weight: bold;
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
         }
         .status-rejected {
-            color: red;
-            font-weight: bold;
-        }
-        .materials-list, .classrooms-list {
-            margin: 0;
-            padding: 0;
-            list-style-type: none;
-        }
-        .request-details {
-            margin-top: 10px;
-            font-size: 0.9em;
-            color: #666;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 10px;
+            background: #f8d7da;
+            color: #721c24;
         }
         .btn {
             padding: 6px 12px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 0.9em;
+            margin-right: 8px;
+        }
+        .btn-details {
+            background: #007bff;
+            color: white;
         }
         .btn-approve {
-            background-color: #4CAF50;
+            background: #28a745;
             color: white;
         }
         .btn-reject {
-            background-color: #f44336;
-            color: white;
-        }
-        .btn-details {
-            background-color: #2196F3;
+            background: #dc3545;
             color: white;
         }
         .modal {
             display: none;
             position: fixed;
-            z-index: 1;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.5);
         }
         .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
+            background: white;
+            margin: 10% auto;
             padding: 20px;
-            border: 1px solid #888;
             width: 80%;
             max-width: 600px;
             border-radius: 8px;
         }
         .close {
-            color: #aaa;
             float: right;
-            font-size: 28px;
-            font-weight: bold;
             cursor: pointer;
+            font-size: 24px;
         }
-        .close:hover {
-            color: black;
+        .material-list {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Danh Sách Yêu Cầu Vật Tư</h1>
-        <table class="request-list" id="requestTable">
+        <h1>Quản lý Yêu cầu Vật tư</h1>
+        <table id="requestTable">
             <thead>
                 <tr>
-                    <th>Mã Yêu Cầu</th>
-                    <th>Người Yêu Cầu</th>
-                    <th>Vật Tư</th>
-                    <th>Phòng Học</th>
-                    <th>Ngày Yêu Cầu</th>
-                    <th>Trạng Thái</th>
-                    <th>Thao Tác</th>
+                    <th>Người yêu cầu</th>
+                    <th>Loại yêu cầu</th>
+                    <th>Ngày yêu cầu</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
                 </tr>
             </thead>
-            <tbody id="requestTableBody">
-                <!-- Dữ liệu sẽ được load động -->
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
 
-    <!-- Modal chi tiết yêu cầu -->
-    <div id="requestDetailsModal" class="modal">
+    <div id="detailsModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <div id="requestDetailsContent"></div>
+            <h2>Chi tiết Yêu cầu</h2>
+            <div id="modalContent"></div>
+            <div id="approvalButtons"></div>
         </div>
     </div>
 
     <script>
-        // Dữ liệu mock response
-        const mockResponse = {
+        const mockData = {
             "content": [
                 {
                     "id": "6761497d1a1ef936f040f4b7",
@@ -165,24 +144,17 @@
                             "unit": "pieces"
                         }
                     ],
-                    "classrooms": [
-                        "Room 101",
-                        "Room 102"
-                    ],
+                    "classrooms": ["Room 101", "Room 102"],
                     "semester": "Fall 2024",
                     "purpose": "Teaching purposes",
                     "date": "2024-12-17 09:50:53",
-                    "note": null,
                     "status": "approved",
                     "approvedBy": "thaistorekeeper",
-                    "approvedDate": "2024-12-17 16:57:22",
-                    "rejectedBy": null,
-                    "rejectedDate": null
+                    "approvedDate": "2024-12-17 16:57:22"
                 },
                 {
                     "id": "676149911a1ef936f040f4b8",
                     "requesterName": "thaiteacher",
-                    "topicName": "SupplyRequest",
                     "type": "MaterialSupply",
                     "materials": [
                         {
@@ -196,168 +168,92 @@
                             "unit": "pieces"
                         }
                     ],
-                    "classrooms": [
-                        "Room 101",
-                        "Room 102"
-                    ],
+                    "classrooms": ["Room 101", "Room 102"],
                     "semester": "Fall 2024",
                     "purpose": "Teaching purposes",
                     "date": "2024-12-17 09:51:13",
-                    "note": null,
-                    "status": "pending",
-                    "approvedBy": null,
-                    "approvedDate": null,
-                    "rejectedBy": null,
-                    "rejectedDate": null
+                    "status": "pending"
                 }
             ]
         };
 
-        // Hàm render danh sách yêu cầu
-        function renderRequests(requests) {
-            const tableBody = document.getElementById('requestTableBody');
-            tableBody.innerHTML = '';
+        function formatDate(dateString) {
+            return dayjs(dateString).format('YYYY-MM-DD HH:mm');
+        }
 
-            requests.forEach(request => {
+        function renderTable() {
+            const tbody = document.querySelector('#requestTable tbody');
+            tbody.innerHTML = '';
+            
+            mockData.content.forEach(request => {
                 const row = document.createElement('tr');
-
-                // Tạo HTML cho từng yêu cầu
                 row.innerHTML = `
-                    <td>${request.id}</td>
                     <td>${request.requesterName}</td>
+                    <td>${request.type}</td>
+                    <td>${formatDate(request.date)}</td>
+                    <td><span class="status status-${request.status.toLowerCase()}">${request.status}</span></td>
                     <td>
-                        <ul class="materials-list">
-                            ${request.materials.map(material =>
-                                `<li>${material.name}: ${material.quantity} ${material.unit}</li>`
-                            ).join('')}
-                        </ul>
-                    </td>
-                    <td>
-                        <ul class="classrooms-list">
-                            ${request.classrooms.map(classroom =>
-                                `<li>${classroom}</li>`
-                            ).join('')}
-                        </ul>
-                    </td>
-                    <td>${request.date}</td>
-                    <td class="${getStatusClass(request.status)}">
-                        ${getStatusText(request.status)}
-                    </td>
-                    <td class="action-buttons">
-                        <button class="btn btn-details" onclick="showRequestDetails('${request.id}')">Chi Tiết</button>
+                        <button class="btn btn-details" onclick="showDetails('${request.id}')">Details</button>
                         ${request.status === 'pending' ? `
-                            <button class="btn btn-approve" onclick="approveRequest('${request.id}')">Duyệt</button>
-                            <button class="btn btn-reject" onclick="rejectRequest('${request.id}')">Từ Chối</button>
+                            <button class="btn btn-approve" onclick="handleApproval('${request.id}', 'approved')">Approve</button>
+                            <button class="btn btn-reject" onclick="handleApproval('${request.id}', 'rejected')">Reject</button>
                         ` : ''}
                     </td>
                 `;
-
-                tableBody.appendChild(row);
+                tbody.appendChild(row);
             });
         }
 
-        // Hàm xác định class màu cho trạng thái
-        function getStatusClass(status) {
-            switch(status) {
-                case 'approved': return 'status-approved';
-                case 'pending': return 'status-pending';
-                case 'rejected': return 'status-rejected';
-                default: return '';
-            }
-        }
-
-        // Hàm chuyển đổi trạng thái sang văn bản
-        function getStatusText(status) {
-            switch(status) {
-                case 'approved': return 'Đã Duyệt';
-                case 'pending': return 'Chờ Duyệt';
-                case 'rejected': return 'Đã Từ Chối';
-                default: return status;
-            }
-        }
-
-        // Hàm hiển thị chi tiết yêu cầu
-        function showRequestDetails(requestId) {
-            const request = mockResponse.content.find(req => req.id === requestId);
-            if (!request) return;
-
-            const detailsContent = `
-                <h2>Chi Tiết Yêu Cầu</h2>
-                <p><strong>Mã Yêu Cầu:</strong> ${request.id}</p>
-                <p><strong>Người Yêu Cầu:</strong> ${request.requesterName}</p>
-                <p><strong>Học Kỳ:</strong> ${request.semester}</p>
-                <p><strong>Mục Đích:</strong> ${request.purpose}</p>
-                <h3>Danh Sách Vật Tư:</h3>
-                <ul>
-                    ${request.materials.map(material =>
-                        `<li>${material.name}: ${material.quantity} ${material.unit}</li>`
-                    ).join('')}
-                </ul>
-                <h3>Phòng Học:</h3>
-                <ul>
-                    ${request.classrooms.map(classroom =>
-                        `<li>${classroom}</li>`
-                    ).join('')}
-                </ul>
-                <p><strong>Ngày Yêu Cầu:</strong> ${request.date}</p>
-                <p><strong>Trạng Thái:</strong> ${getStatusText(request.status)}</p>
-                ${request.status === 'approved' ? `
-                    <p><strong>Người Duyệt:</strong> ${request.approvedBy}</p>
-                    <p><strong>Ngày Duyệt:</strong> ${request.approvedDate}</p>
-                ` : ''}
-                ${request.status === 'rejected' ? `
-                    <p><strong>Người Từ Chối:</strong> ${request.rejectedBy}</p>
-                    <p><strong>Ngày Từ Chối:</strong> ${request.rejectedDate}</p>
-                ` : ''}
+        function showDetails(id) {
+            const request = mockData.content.find(r => r.id === id);
+            const modal = document.getElementById('detailsModal');
+            const content = document.getElementById('modalContent');
+            
+            content.innerHTML = `
+                <p><strong>ID:</strong> ${request.id}</p>
+                <p><strong>Người yêu cầu:</strong> ${request.requesterName}</p>
+                <p><strong>Loại yêu cầu:</strong> ${request.type}</p>
+                <p><strong>Học kỳ:</strong> ${request.semester}</p>
+                <p><strong>Mục đích:</strong> ${request.purpose}</p>
+                <p><strong>Phòng học:</strong> ${request.classrooms.join(', ')}</p>
+                <div class="material-list">
+                    <h3>Danh sách vật tư:</h3>
+                    ${request.materials.map(m => `
+                        <p>${m.name}: ${m.quantity} ${m.unit}</p>
+                    `).join('')}
+                </div>
+                <p><strong>Trạng thái:</strong> <span class="status status-${request.status.toLowerCase()}">${request.status}</span></p>
+                ${request.approvedBy ? `<p><strong>Người duyệt:</strong> ${request.approvedBy}</p>` : ''}
+                ${request.approvedDate ? `<p><strong>Ngày duyệt:</strong> ${formatDate(request.approvedDate)}</p>` : ''}
             `;
-
-            document.getElementById('requestDetailsContent').innerHTML = detailsContent;
-            document.getElementById('requestDetailsModal').style.display = 'block';
+            
+            modal.style.display = 'block';
         }
 
-        // Hàm phê duyệt yêu cầu
-        function approveRequest(requestId) {
-            const request = mockResponse.content.find(req => req.id === requestId);
-            if (!request) return;
-
-            request.status = 'approved';
-            request.approvedBy = 'Current User';
-            request.approvedDate = new Date().toISOString().slice(0,19).replace('T', ' ');
-
-            renderRequests(mockResponse.content);
-            alert('Yêu cầu đã được phê duyệt thành công!');
+        function handleApproval(id, status) {
+            const request = mockData.content.find(r => r.id === id);
+            request.status = status;
+            if (status === 'approved') {
+                request.approvedBy = 'currentUser';
+                request.approvedDate = new Date().toISOString();
+            }
+            renderTable();
         }
 
-        // Hàm từ chối yêu cầu
-        function rejectRequest(requestId) {
-            const request = mockResponse.content.find(req => req.id === requestId);
-            if (!request) return;
-
-            request.status = 'rejected';
-            request.rejectedBy = 'Current User';
-            request.rejectedDate = new Date().toISOString().slice(0,19).replace('T', ' ');
-
-            renderRequests(mockResponse.content);
-            alert('Yêu cầu đã bị từ chối!');
-        }
-
-        // Xử lý đóng modal
+        // Close modal functionality
         document.querySelector('.close').onclick = function() {
-            document.getElementById('requestDetailsModal').style.display = 'none';
+            document.getElementById('detailsModal').style.display = 'none';
         }
 
-        // Đóng modal khi click ngoài
         window.onclick = function(event) {
-            const modal = document.getElementById('requestDetailsModal');
-            if (event.target == modal) {
+            const modal = document.getElementById('detailsModal');
+            if (event.target === modal) {
                 modal.style.display = 'none';
             }
         }
 
-        // Render dữ liệu khi trang load
-        document.addEventListener('DOMContentLoaded', () => {
-            renderRequests(mockResponse.content);
-        });
+        // Initial render
+        renderTable();
     </script>
 </body>
 </html>
