@@ -9,14 +9,66 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: url('../../img/hust-c1-b.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
         }
+
         .header {
-            background-color: #007BFF;
+            background-color: rgba(0, 123, 255, 0.9);
             color: white;
-            padding: 20px;
-            text-align: center;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
         }
+
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            min-width: 150px;
+            z-index: 1000;
+        }
+
+        .dropdown.show {
+            display: block;
+        }
+
+        .dropdown a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .dropdown a:hover {
+            background-color: #f5f5f5;
+        }
+
         .container {
             max-width: 800px;
             margin: 20px auto;
@@ -24,17 +76,21 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            flex: 1;
         }
+
         h1 {
             text-align: center;
             color: #333;
         }
+
         .navigation {
             display: flex;
             flex-direction: column;
             gap: 15px;
             margin-top: 20px;
         }
+
         .navigation a {
             text-decoration: none;
             display: block;
@@ -46,20 +102,29 @@
             border-radius: 5px;
             transition: background-color 0.3s;
         }
+
         .navigation a:hover {
             background-color: #0056b3;
         }
+
         .footer {
             text-align: center;
             padding: 10px;
-            color: #888;
-            margin-top: 20px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            margin-top: auto;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h2>Trang Chủ - Vai Trò: Nhân Viên Vật Tư</h2>
+        <div class="profile-section">
+            <img src="../../img/quan.jpg" alt="Avatar" class="avatar" onclick="toggleDropdown()">
+            <div class="dropdown" id="profileDropdown">
+                <a href="#" onclick="showProfile()">Thông tin cá nhân</a>
+                <a href="../login.html">Đăng xuất</a>
+            </div>
+        </div>
     </div>
 
     <div class="container">
@@ -75,5 +140,27 @@
     <div class="footer">
         <p>&copy; 2024 Hệ Thống Quản Lý Vật Tư</p>
     </div>
+
+    <script>
+        function toggleDropdown() {
+            document.getElementById('profileDropdown').classList.toggle('show');
+        }
+
+        function showProfile() {
+            alert('Chức năng đang phát triển');
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.avatar')) {
+                var dropdowns = document.getElementsByClassName('dropdown');
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+    </script>
 </body>
 </html>
