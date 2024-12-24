@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Sách Vật Tư Trong Kho</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Danh Sách Vật Tư Có Trong Kho</h1>
+<table id="inventoryTable">
+    <thead>
+    <tr>
+        <th>Tên Vật Tư</th>
+        <th>Số Lượng</th>
+        <th>Đơn Vị</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Dữ liệu sẽ được chèn vào đây -->
+    </tbody>
+</table>
+
+<script>
+    // Giả lập phản hồi từ server
+    const mockResponse = [
+        { "name": "Whiteboard Marker", "quantity": 30, "unit": "pieces" },
+        { "name": "Projector Bulb", "quantity": 20, "unit": "pieces" },
+        { "name": "Laptop Charger", "quantity": 30, "unit": "pieces" },
+        { "name": "PC", "quantity": 51, "unit": "bộ" }
+    ];
+
+    // Hàm hiển thị dữ liệu lên bảng
+    function displayInventory(data) {
+        const tableBody = document.getElementById('inventoryTable').getElementsByTagName('tbody')[0];
+        data.forEach(item => {
+            const row = tableBody.insertRow();
+            row.insertCell(0).textContent = item.name;
+            row.insertCell(1).textContent = item.quantity;
+            row.insertCell(2).textContent = item.unit;
+        });
+    }
+
+    // Gọi hàm để hiển thị dữ liệu
+    displayInventory(mockResponse);
+</script>
+
+</body>
+</html>
