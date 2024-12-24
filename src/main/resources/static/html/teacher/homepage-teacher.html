@@ -23,15 +23,34 @@
             color: white;
             padding: 15px 20px;
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
+        }
+
+        .system-name {
+            font-size: 1.5em;
+            font-weight: bold;
         }
 
         .profile-section {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
             position: relative;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .username {
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .role {
+            font-size: 0.9em;
+            opacity: 0.9;
         }
 
         .avatar {
@@ -52,6 +71,7 @@
             border-radius: 4px;
             min-width: 150px;
             z-index: 1000;
+            margin-top: 5px;
         }
 
         .dropdown.show {
@@ -118,7 +138,14 @@
 </head>
 <body>
     <div class="header">
+        <div class="system-name">
+            Hệ Thống Quản Lý Vật Tư
+        </div>
         <div class="profile-section">
+            <div class="user-info">
+                <div class="username">thaiteacher</div>
+                <div class="role">Giáo viên</div>
+            </div>
             <img src="../../img/quan.jpg" alt="Avatar" class="avatar" onclick="toggleDropdown()">
             <div class="dropdown" id="profileDropdown">
                 <a href="#" onclick="showProfile()">Thông tin cá nhân</a>
