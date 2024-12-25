@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/teacher/request")
@@ -95,7 +96,7 @@ public class RequestMaterialController {
     @PostMapping("/provideRequest/{id}")
     public ResponseEntity<?> confirmProvideRequestById(@PathVariable String id) {
         manageProvideRequestService.confirmRequestById(id);
-        return ResponseEntity.ok("Request confirmed");
+        return ResponseEntity.ok(Map.of("message", "Yêu cầu đã được xác nhận thành công"));
     }
 
 }

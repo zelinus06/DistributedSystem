@@ -136,91 +136,123 @@
     </div>
 
     <script>
-        // Mock data - Dữ liệu giả
-        const mockResponse = [
-            {
-                "id": "676128203e63c665808f29ed",
-                "requestId": "675a9c014f3c085034ba8118",
-                "storekeeperName": "thaistorekeeper",
-                "topicName": "Yêu Cầu Cung Cấp",
-                "type": "Cung Cấp Vật Tư",
-                "materials": [
-                    {
-                        "materialName": "Sổ Tay",
-                        "quantity": 50,
-                        "unit": "kg"
-                    },
-                    {
-                        "materialName": "Bút Dạ",
-                        "quantity": 10,
-                        "unit": "kg"
+        // Hàm lấy token từ cookie
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        // Hàm lấy dữ liệu từ API
+        async function fetchRequests() {
+            try {
+                const token = getCookie('token'); // Lấy token từ cookie
+                if (!token) {
+                    alert('Không tìm thấy token. Vui lòng đăng nhập lại.');
+                    return;
+                }
+
+                const response = await fetch('http://localhost:8080/api/teacher/request/provideRequest', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     }
-                ],
-                "classrooms": [
-                    "101",
-                    "102"
-                ],
-                "semester": "Mùa Xuân 2024",
-                "purpose": "Chuẩn Bị Lớp Học",
-                "date": "2024-12-17 07:28:32",
-                "status": "approved",
-                "source": "Hóa học"
-            },
-            {
-                "id": "676129ff5085756e81f42e01",
-                "requestId": "675a9c014f3c085034ba8110",
-                "storekeeperName": "thaistorekeeper",
-                "topicName": "Yêu Cầu Cung Cấp",
-                "type": "Cung Cấp Vật Tư",
-                "materials": [
-                    {
-                        "materialName": "Sổ Tay",
-                        "quantity": 50,
-                        "unit": "kg"
-                    },
-                    {
-                        "materialName": "Bút Dạ",
-                        "quantity": 10,
-                        "unit": "kg"
-                    }
-                ],
-                "classrooms": [
-                    "103",
-                    "102"
-                ],
-                "semester": "Mùa Hè 2020",
-                "purpose": "Chuẩn Bị Lớp Học",
-                "date": "2024-12-17 07:36:30",
-                "status": "rejected",
-                "source": "Hóa học 2"
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Lỗi khi gọi API: ${response.statusText}`);
+                }
+
+                const requests = await response.json();
+                renderRequests(requests); // Gọi hàm render với dữ liệu từ API
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu:', error);
+                alert('Không thể tải dữ liệu. Vui lòng thử lại sau.');
             }
-        ];
+        }
 
         // Hàm hiển thị danh sách yêu cầu
-        function renderRequests() {
+        function renderRequests(requests) {
             const tableBody = document.getElementById('requestTableBody');
             tableBody.innerHTML = ''; // Xóa dữ liệu cũ
 
-            mockResponse.forEach(request => {
+            requests.forEach(request => {
                 const isConfirmable = request.status === 'approved' || request.status === 'rejected';
 
                 const row = document.createElement('tr');
                 row.onclick = () => showRequestDetails(request); // Hiển thị chi tiết khi click vào hàng
                 row.innerHTML = `
-                    <td>${request.storekeeperName}</td>
-                    <td>${request.topicName}</td>
-                    <td>${request.type}</td>
-                    <td>${request.date}</td>
-                    <td class="${getStatusClass(request.status)}">${request.status.charAt(0).toUpperCase() + request.status.slice(1)}</td>
-                    <td>
-                        ${isConfirmable ? `<button class="confirm-btn" id="confirmBtn-${request.id}" onclick="confirmRequest(event, '${request.id}')">Xác Nhận</button>` : ''}
-                    </td>
-                `;
+            <td>${request.storekeeperName}</td>
+            <td>${request.topicName}</td>
+            <td>${request.type}</td>
+            <td>${request.date}</td>
+            <td class="${getStatusClass(request.status)}">${request.status.charAt(0).toUpperCase() + request.status.slice(1)}</td>
+            <td>
+                ${request.status === 'confirmed' ? '' : `<button class="confirm-btn" id="confirmBtn-${request.requestId}" onclick="confirmRequest(event, '${request.requestId}')">Xác Nhận</button>`}
+            </td>
+        `;
                 tableBody.appendChild(row);
             });
         }
 
-        // Hàm hiển thị chi tiết yêu cầu
+
+        // Các hàm khác giữ nguyên (showRequestDetails, getStatusClass, confirmRequest)
+        // Lấy class trạng thái
+        function getStatusClass(status) {
+            switch (status) {
+                case 'approved': return 'status-approved';
+                case 'rejected': return 'status-rejected';
+                case 'pending': return 'status-pending';
+                default: return '';
+            }
+        }
+
+        async function confirmRequest(event, requestId) {
+            event.stopPropagation(); // Ngăn sự kiện click hàng
+
+            const token = getCookie('token'); // Lấy token từ cookie
+            if (!token) {
+                alert('Không tìm thấy token. Vui lòng đăng nhập lại.');
+                return;
+            }
+
+            try {
+                // Gửi yêu cầu API
+                const response = await fetch(`http://localhost:8080/api/teacher/request/provideRequest/${requestId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Lỗi khi gọi API`);
+                }
+
+                // Parse phản hồi dưới dạng JSON
+                const result = await response.json();
+                console.log(result);
+                // Hiển thị thông báo từ server
+                alert(result.message); // Sử dụng thông báo từ API
+
+                // Cập nhật giao diện
+                const button = document.getElementById(`confirmBtn-${requestId}`);
+                button.innerText = "Đã Xác Nhận";
+                button.classList.add('disabled-btn');
+                button.disabled = true;
+                const isAuthenticated = document.getElementById(`confirmBtn-${requestId}`);
+                alert(`Yêu cầu ${requestId} đã được xác nhận thành công!`);
+            } catch (error) {
+                console.error('Lỗi khi xác nhận yêu cầu:', error);
+                alert('Có lỗi xảy ra khi xác nhận yêu cầu. Vui lòng thử lại.');
+            }
+        }
+
+
+
         function showRequestDetails(request) {
             document.getElementById('detailSection').style.display = 'block';
 
@@ -230,7 +262,7 @@
             request.materials.forEach(material => {
                 const materialRow = document.createElement('tr');
                 materialRow.innerHTML = `
-                    <td>${material.materialName}</td>
+                    <td>${material.name}</td>
                     <td>${material.quantity}</td>
                     <td>${material.unit}</td>
                 `;
@@ -244,28 +276,9 @@
             document.getElementById('sourceDetail').textContent = request.source;
         }
 
-        // Lấy class trạng thái
-        function getStatusClass(status) {
-            switch (status) {
-                case 'approved': return 'status-approved';
-                case 'rejected': return 'status-rejected';
-                case 'pending': return 'status-pending';
-                default: return '';
-            }
-        }
-
-        // Hàm xác nhận yêu cầu
-        function confirmRequest(event, requestId) {
-            event.stopPropagation(); // Ngăn sự kiện click hàng
-            const button = document.getElementById(`confirmBtn-${requestId}`);
-            button.innerText = "Đã Xác Nhận";
-            button.classList.add('disabled-btn');
-            button.disabled = true;
-            alert(`Yêu cầu ${requestId} đã được xác nhận thành công!`);
-        }
-
         // Tải dữ liệu khi trang được load
-        document.addEventListener('DOMContentLoaded', renderRequests);
+        document.addEventListener('DOMContentLoaded', fetchRequests);
     </script>
+
 </body>
 </html>

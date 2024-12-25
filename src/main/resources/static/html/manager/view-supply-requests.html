@@ -149,193 +149,145 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Danh sách Yêu cầu Cung cấp Vật tư</h1>
+<div class="container">
+    <h1>Danh sách Yêu cầu Cung cấp Vật tư</h1>
 
-        <div class="filters">
-            <div class="filter-group">
-                <label for="semester">Học kỳ:</label>
-                <select id="semester" onchange="filterProvides()">
-                    <option value="">Tất cả</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="status">Trạng thái:</label>
-                <select id="status" onchange="filterProvides()">
-                    <option value="">Tất cả</option>
-                    <option value="confirmed">Đã xác nhận</option>
-                    <option value="pending">Chờ xử lý</option>
-                </select>
-            </div>
-            <div class="filter-group">
-                <label for="dateRange">Thời gian:</label>
-                <input type="date" id="startDate" onchange="filterProvides()">
-                <input type="date" id="endDate" onchange="filterProvides()">
-            </div>
+    <div class="filters">
+        <div class="filter-group">
+            <label for="semester">Học kỳ:</label>
+            <select id="semester" onchange="filterProvides()">
+                <option value="">Tất cả</option>
+            </select>
         </div>
-
-        <div id="provides-container"></div>
+        <div class="filter-group">
+            <label for="status">Trạng thái:</label>
+            <select id="status" onchange="filterProvides()">
+                <option value="">Tất cả</option>
+                <option value="confirmed">Đã xác nhận</option>
+                <option value="pending">Chờ xử lý</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="dateRange">Thời gian:</label>
+            <input type="date" id="startDate" onchange="filterProvides()">
+            <input type="date" id="endDate" onchange="filterProvides()">
+        </div>
     </div>
 
-    <script>
-        // Mock data
-        const mockProvides = [
-            {
-                "id": "67613eaa3109a23eb8f0860e",
-                "requestId": "67613ac3b9ba901d7fb09a5b",
-                "storekeeperName": "thaistorekeeper",
-                "topicName": "ProvideRequest",
-                "teacherName": "thaiteacher",
-                "type": "MaterialProvide",
-                "materials": [
-                    {
-                        "name": "Whiteboard Marker",
-                        "quantity": 5,
-                        "unit": "pieces"
-                    },
-                    {
-                        "name": "Projector Bulb",
-                        "quantity": 5,
-                        "unit": "pieces"
-                    }
-                ],
-                "classrooms": ["Room 101", "Room 102"],
-                "semester": "Fall 2024",
-                "purpose": "Teaching purposes",
-                "date": "2024-12-17 09:04:42",
-                "status": "confirmed",
-                "source": "67613d7bd6d5e23a7d90a609"
-            },
-            {
-                "id": "6761849486872ecb7c4dd4e1",
-                "requestId": "67613ac3b9ba901d7fb09a5a",
-                "storekeeperName": "thaistorekeeper",
-                "topicName": "ProvideRequest",
-                "teacherName": "thaiteacher",
-                "type": "MaterialProvide",
-                "materials": [
-                    {
-                        "name": "Whiteboard Marker",
-                        "quantity": 5,
-                        "unit": "pieces"
-                    },
-                    {
-                        "name": "Projector Bulb",
-                        "quantity": 5,
-                        "unit": "pieces"
-                    }
-                ],
-                "classrooms": ["Room 101", "Room 102"],
-                "semester": "Fall 2024",
-                "purpose": "Teaching purposes",
-                "date": "2024-12-17 09:04:42",
-                "status": "confirmed",
-                "source": "67613d7bd6d5e23a7d90a609"
-            }
-        ];
+    <div id="provides-container"></div>
+</div>
 
-        // Initialize semester options
-        function initializeSemesters() {
-            const semesterSelect = document.getElementById('semester');
-            const semesters = [...new Set(mockProvides.map(p => p.semester))];
-            semesters.forEach(semester => {
-                const option = document.createElement('option');
-                option.value = semester;
-                option.textContent = semester;
-                semesterSelect.appendChild(option);
+<script>
+    // Lấy token từ cookies
+    function getTokenFromCookies() {
+        const name = "token=";
+        const decodedCookies = decodeURIComponent(document.cookie);
+        const cookieArray = decodedCookies.split(';');
+
+        for(let i = 0; i < cookieArray.length; i++) {
+            let cookie = cookieArray[i].trim();
+            if (cookie.indexOf(name) === 0) {
+                return cookie.substring(name.length, cookie.length);
+            }
+        }
+        return "";
+    }
+
+    // Gọi API và lấy dữ liệu
+    async function fetchProvides() {
+        const token = getTokenFromCookies();
+
+        if (!token) {
+            console.error("Không tìm thấy token trong cookies!");
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:8080/api/manager/control-resource/provide-requests', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
+
+            if (!response.ok) {
+                throw new Error('Lỗi khi lấy dữ liệu');
+            }
+
+            const data = await response.json();
+            renderProvides(data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    // Hàm để render danh sách yêu cầu cung cấp
+    function renderProvides(provides) {
+        const container = document.getElementById('provides-container');
+
+        if (provides.length === 0) {
+            container.innerHTML = '<div class="no-provides">Không có yêu cầu cung cấp nào</div>';
+            return;
         }
 
-        function formatDate(dateString) {
-            return new Date(dateString).toLocaleString('vi-VN');
-        }
-
-        function getStatusText(status) {
-            switch(status) {
-                case 'confirmed': return 'Đã xác nhận';
-                case 'pending': return 'Chờ xử lý';
-                default: return status;
-            }
-        }
-
-        function filterProvides() {
-            const semester = document.getElementById('semester').value;
-            const status = document.getElementById('status').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-
-            let filteredProvides = [...mockProvides];
-
-            if (semester) {
-                filteredProvides = filteredProvides.filter(p => p.semester === semester);
-            }
-
-            if (status) {
-                filteredProvides = filteredProvides.filter(p => p.status === status);
-            }
-
-            if (startDate) {
-                filteredProvides = filteredProvides.filter(p => new Date(p.date) >= new Date(startDate));
-            }
-
-            if (endDate) {
-                filteredProvides = filteredProvides.filter(p => new Date(p.date) <= new Date(endDate));
-            }
-
-            renderProvides(filteredProvides);
-        }
-
-        function renderProvides(provides) {
-            const container = document.getElementById('provides-container');
-            
-            if (provides.length === 0) {
-                container.innerHTML = '<div class="no-provides">Không có yêu cầu cung cấp nào</div>';
-                return;
-            }
-
-            container.innerHTML = provides.map(provide => `
-                <div class="provide-card">
-                    <div class="provide-header">
-                        <div class="provide-info">
-                            <p><span>Mã yêu cầu:</span> ${provide.id}</p>
-                            <p><span>Thủ kho:</span> ${provide.storekeeperName}</p>
-                            <p><span>Giáo viên:</span> ${provide.teacherName}</p>
-                        </div>
-                        <div class="provide-info">
-                            <p><span>Học kỳ:</span> ${provide.semester}</p>
-                            <p><span>Ngày yêu cầu:</span> ${formatDate(provide.date)}</p>
-                            <p><span>Trạng thái:</span> 
-                                <span class="status status-${provide.status}">
-                                    ${getStatusText(provide.status)}
-                                </span>
-                            </p>
-                        </div>
-                        <div class="provide-info">
-                            <p><span>Phòng học:</span></p>
-                            <div class="classrooms">
-                                ${provide.classrooms.map(room => `
-                                    <span class="classroom-tag">${room}</span>
-                                `).join('')}
-                            </div>
-                        </div>
+        container.innerHTML = provides.map(provide => `
+            <div class="provide-card">
+                <div class="provide-header">
+                    <div class="provide-info">
+                        <p><span>Mã yêu cầu:</span> ${provide.id}</p>
+                        <p><span>Thủ kho:</span> ${provide.storekeeperName}</p>
+                        <p><span>Giáo viên:</span> ${provide.teacherName}</p>
                     </div>
-
-                    <div class="materials-list">
-                        <h3>Danh sách vật tư:</h3>
-                        ${provide.materials.map(material => `
-                            <div class="material-item">
-                                <span>${material.name}</span>
-                                <span>${material.quantity} ${material.unit}</span>
-                            </div>
-                        `).join('')}
+                    <div class="provide-info">
+                        <p><span>Học kỳ:</span> ${provide.semester}</p>
+                        <p><span>Ngày yêu cầu:</span> ${formatDate(provide.date)}</p>
+                        <p><span>Trạng thái:</span>
+                            <span class="status status-${provide.status}">
+                                ${getStatusText(provide.status)}
+                            </span>
+                        </p>
+                    </div>
+                    <div class="provide-info">
+                        <p><span>Phòng học:</span></p>
+                        <div class="classrooms">
+                            ${provide.classrooms.map(room =>
+            `<span class="classroom-tag">${room}</span>`
+        ).join('')}
+                        </div>
                     </div>
                 </div>
-            `).join('');
-        }
 
-        // Initialize page
-        initializeSemesters();
-        renderProvides(mockProvides);
-    </script>
+                <div class="materials-list">
+                    <h3>Danh sách vật tư:</h3>
+                    ${provide.materials.map(material =>
+            `<div class="material-item">
+                            <span>${material.name}</span>
+                            <span>${material.quantity} ${material.unit}</span>
+                        </div>`
+        ).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Hàm để format lại ngày
+    function formatDate(dateString) {
+        return new Date(dateString).toLocaleString('vi-VN');
+    }
+
+    // Hàm để lấy tên trạng thái
+    function getStatusText(status) {
+        switch(status) {
+            case 'confirmed': return 'Đã xác nhận';
+            case 'pending': return 'Chờ xử lý';
+            default: return status;
+        }
+    }
+
+    // Khởi tạo trang
+    fetchProvides();
+</script>
+
 </body>
 </html>

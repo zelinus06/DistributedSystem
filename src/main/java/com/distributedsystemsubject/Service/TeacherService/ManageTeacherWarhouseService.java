@@ -31,17 +31,35 @@ public class ManageTeacherWarhouseService {
 
         List<Materials> teacherMaterials = teacherWarhouse.getMaterials();
 
+        // Cập nhật số lượng vật tư mới
         for (Materials material : materials.getMaterials()) {
             Materials teacherMaterial = teacherMaterials.stream()
                     .filter(tm -> tm.getName().equals(material.getName()))
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("Material not found: " + material.getName()));
-            if (teacherMaterial.getQuantity() >= material.getQuantity()) {
-                teacherMaterial.setQuantity(teacherMaterial.getQuantity() - material.getQuantity());
-            } else {
-                throw new RuntimeException("Not enough materials for: " + material.getName());
-            }
+
+            teacherMaterial.setQuantity(material.getQuantity());
         }
+
         teacherWarhouseRepo.save(teacherWarhouse);
     }
+
+
+//    public void consumeMaterials(String teacherName, MaterialConsumeRequest materials) {
+//        TeacherWarhouse teacherWarhouse = teacherWarhouseRepo.findByTeacherName(teacherName)
+//                .orElseThrow(() -> new RuntimeException("TeacherWarehouse not found"));
+//        List<Materials> teacherMaterials = teacherWarhouse.getMaterials();
+//        for (Materials material : materials.getMaterials()) {
+//            Materials teacherMaterial = teacherMaterials.stream()
+//                    .filter(tm -> tm.getName().equals(material.getName()))
+//                    .findFirst()
+//                    .orElseThrow(() -> new RuntimeException("Material not found: " + material.getName()));
+//            if (teacherMaterial.getQuantity() >= material.getQuantity()) {
+//                teacherMaterial.setQuantity(teacherMaterial.getQuantity() - material.getQuantity());
+//            } else {
+//                throw new RuntimeException("Not enough materials for: " + material.getName());
+//            }
+//        }
+//        teacherWarhouseRepo.save(teacherWarhouse);
+//    }
 }
