@@ -55,17 +55,40 @@
     </table>
 
     <script>
+        // Hàm giả lập mock response
         async function fetchOrderRequests() {
             const tableBody = document.getElementById("orderTableBody");
 
-            try {
-                const response = await fetch("http://localhost:8080/api/storekeeper/order/view");
-                if (!response.ok) {
-                    throw new Error("Không thể tải danh sách yêu cầu.");
+            // Mock response
+            const orders = [
+                {
+                    "id": "67623e3a962b8f0eeb0f1441",
+                    "requesterName": "thaistorekeeper",
+                    "topicName": "OrderRequest",
+                    "type": "MaterialOrder",
+                    "materials": [
+                        {
+                            "name": "Laptop",
+                            "quantity": 5,
+                            "unit": "pcs",
+                            "price": 200000
+                        },
+                        {
+                            "name": "Mouse",
+                            "quantity": 10,
+                            "unit": "pcs",
+                            "price": 200000
+                        }
+                    ],
+                    "purpose": "Procurement for new employees",
+                    "date": "2024-12-18 03:15:06",
+                    "status": "pending",
+                    "approvedBy": null,
+                    "approvedDate": null
                 }
+            ];
 
-                const orders = await response.json();
-
+            try {
                 // Xóa nội dung cũ trong bảng
                 tableBody.innerHTML = "";
 

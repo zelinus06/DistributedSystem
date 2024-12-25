@@ -159,7 +159,7 @@
     async function createOrder() {
         const statusMessage = document.getElementById("statusMessage");
         const purpose = document.getElementById("purpose").value.trim();
-
+    
         // Lấy danh sách vật liệu từ form
         const materials = Array.from(document.querySelectorAll(".material-item")).map(item => ({
             name: item.querySelector(".materialName").value.trim(),
@@ -167,48 +167,39 @@
             unit: item.querySelector(".materialUnit").value.trim(),
             price: parseInt(item.querySelector(".materialPrice").value, 10)
         }));
-
+    
         // Kiểm tra đầu vào
         if (!purpose || materials.some(m => !m.name || isNaN(m.quantity) || !m.unit || isNaN(m.price))) {
             statusMessage.textContent = "Vui lòng nhập đầy đủ thông tin.";
             statusMessage.className = "error";
             return;
         }
-
+    
         // Chuẩn bị dữ liệu yêu cầu
         const requestData = {
             materials,
             purpose
         };
-
-        try {
-            // Gửi yêu cầu tới API
-            const response = await fetch("http://localhost:8080/api/storekeeper/order/create", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(requestData)
-            });
-
-            if (!response.ok) {
-                throw new Error("Không thể gửi yêu cầu. Kiểm tra lại thông tin.");
-            }
-
-            const responseText = await response.text(); // Phản hồi từ máy chủ
-            statusMessage.textContent = responseText || "Gửi yêu cầu thành công!";
+    
+        // Mock response
+        console.log("Request:", JSON.stringify(requestData, null, 2));
+        setTimeout(() => {
+            const responseText = "Gửi yêu cầu thành công";
+            statusMessage.textContent = responseText;
             statusMessage.className = "success";
-
+    
             // Xóa thông tin trong form
             document.getElementById("orderForm").reset();
             document.getElementById("materialsContainer").innerHTML = ""; // Xóa vật liệu cũ
             addMaterialInput(); // Thêm khung nhập vật liệu đầu tiên
-        } catch (error) {
-            console.error("Lỗi:", error);
-            statusMessage.textContent = "Đã xảy ra lỗi khi gửi yêu cầu.";
-            statusMessage.className = "error";
-        }
+        }, 1000); // Giả lập thời gian phản hồi
+        // Hiển thị thông tin gửi đi trong form dưới dạng JSON
+const requestInfo = document.createElement("pre");
+requestInfo.textContent = JSON.stringify(requestData, null, 2);
+statusMessage.parentNode.appendChild(requestInfo);
+
     }
+    
 </script>
 </body>
 </html>
