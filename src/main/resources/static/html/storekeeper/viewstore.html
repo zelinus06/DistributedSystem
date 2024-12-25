@@ -9,32 +9,30 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-image: url('../../img/hust-c1-b.jpg'); 
+            background-image: url('../../img/hust-c1-b.jpg');
             background-size: cover;
             background-position: center;
         }
         .container {
-            width: 70%; /* Giảm chiều rộng khung xuống 70% */
-            max-width: 1000px; /* Giảm max-width để khung không quá rộng */
-            margin: 80px auto 20px auto; /* Tăng khoảng cách phía trên (margin-top) để khung hạ thấp xuống một chút */
-            background-color: rgba(255, 255, 255, 0.8); /* Nền màu trắng bán trong suốt */
+            width: 70%;
+            max-width: 1000px;
+            margin: 80px auto 20px auto;
+            background-color: rgba(255, 255, 255, 0.8);
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Thêm bóng cho khung */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-        h1, h2 {
+        h1 {
             text-align: center;
         }
-        /* Căn chỉnh các phần tử theo chiều ngang */
         .header-row {
             display: flex;
-            justify-content: space-between; /* Căn đều không gian giữa nút và phần tìm kiếm */
-            align-items: center; /* Căn giữa các phần tử theo chiều dọc */
+            justify-content: space-between;
+            align-items: center;
         }
         .header-row button, .header-row input {
             margin: 10px;
         }
-        /* Căn giữa nút */
         .center-button {
             padding: 10px;
             background-color: #4CAF50;
@@ -66,11 +64,10 @@
         .error {
             color: red;
         }
-        /* Tạo phần tử tìm kiếm và nút tìm kiếm nằm ngang */
         .search-container {
             display: flex;
-            align-items: center; /* Căn giữa theo chiều dọc */
-            margin-left: 50px; 
+            align-items: center;
+            margin-left: 50px;
         }
         input[type="text"] {
             padding: 8px;
@@ -80,147 +77,172 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Quản lý vật liệu trong kho</h1>
-
-        <!-- Phần chứa nút và tìm kiếm vật liệu, sử dụng Flexbox để căn chỉnh ngang -->
-        <div class="header-row">
-            <!-- Nút xem toàn bộ vật liệu -->
-            <button class="center-button" onclick="viewAllMaterials()">Xem tất cả vật liệu trong kho</button>
-
-            <!-- Phần tìm kiếm vật liệu -->
-            <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Nhập tên vật liệu cần tìm" />
-                <button onclick="searchMaterial()">Tìm kiếm</button>
-            </div>
+<div class="container">
+    <h1>Quản lý vật liệu trong kho</h1>
+    <div class="header-row">
+        <button class="center-button" onclick="viewAllMaterials()">Xem tất cả vật liệu trong kho</button>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Nhập tên vật liệu cần tìm" />
+            <button onclick="searchMaterial()">Tìm kiếm</button>
         </div>
-
-        <p id="viewStatusMessage"></p>
-        <table id="allMaterialsTable" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Tên vật liệu</th>
-                    <th>Số lượng</th>
-                    <th>Đơn vị</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
-        <hr>
-
-        <p id="searchStatusMessage"></p>
-        <table id="searchResultTable" style="display: none;">
-            <thead>
-                <tr>
-                    <th>Tên vật liệu</th>
-                    <th>Số lượng</th>
-                    <th>Đơn vị</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
     </div>
+    <p id="viewStatusMessage"></p>
+    <table id="allMaterialsTable" style="display: none;">
+        <thead>
+        <tr>
+            <th>Tên vật liệu</th>
+            <th>Số lượng</th>
+            <th>Đơn vị</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <hr>
+    <p id="searchStatusMessage"></p>
+    <table id="searchResultTable" style="display: none;">
+        <thead>
+        <tr>
+            <th>Tên vật liệu</th>
+            <th>Số lượng</th>
+            <th>Đơn vị</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+<script>
+    // Lấy token từ cookie
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
 
-    <script>
-        // Hàm xem tất cả vật liệu trong kho
-        // Hàm xem tất cả vật liệu trong kho
-async function viewAllMaterials() {
-    const statusMessage = document.getElementById("viewStatusMessage");
-    const materialsTable = document.getElementById("allMaterialsTable");
-    const tableBody = materialsTable.querySelector("tbody");
+    // Hàm xem tất cả vật liệu trong kho
+    async function viewAllMaterials() {
+        const statusMessage = document.getElementById("viewStatusMessage");
+        const materialsTable = document.getElementById("allMaterialsTable");
+        const tableBody = materialsTable.querySelector("tbody");
 
-    statusMessage.textContent = "Đang tải danh sách vật liệu...";
-    statusMessage.className = "loading";
-    materialsTable.style.display = "none";
-    tableBody.innerHTML = "";
+        statusMessage.textContent = "Đang tải danh sách vật liệu...";
+        statusMessage.className = "loading";
+        materialsTable.style.display = "none";
+        tableBody.innerHTML = "";
 
-    try {
-        // Mock response
-        const materials = [
-            { name: "Whiteboard Marker", quantity: 30, unit: "pieces" },
-            { name: "Projector Bulb", quantity: 20, unit: "pieces" },
-            { name: "Laptop Charger", quantity: 30, unit: "pieces" },
-            { name: "PC", quantity: 51, unit: "bộ" }
-        ];
+        try {
+            const token = getCookie("token");
+            const response = await fetch("http://localhost:8080/api/storekeeper/material/view", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
 
-        if (materials.length === 0) {
-            statusMessage.textContent = "Không có vật liệu nào trong kho.";
+            if (!response.ok) {
+                throw new Error(`HTTP error! status`);
+            }
+
+            const materials = await response.json();
+
+            if (materials.length === 0) {
+                statusMessage.textContent = "Không có vật liệu nào trong kho.";
+                statusMessage.className = "error";
+                return;
+            }
+
+            materials.forEach(material => {
+                const row = `
+                        <tr>
+                            <td>${material.name}</td>
+                            <td>${material.quantity}</td>
+                            <td>${material.unit}</td>
+                        </tr>
+                    `;
+                tableBody.innerHTML += row;
+            });
+
+            statusMessage.textContent = "";
+            materialsTable.style.display = "table";
+        } catch (error) {
+            console.error("Lỗi:", error);
+            statusMessage.textContent = "Đã xảy ra lỗi khi tải danh sách vật liệu.";
+            statusMessage.className = "error";
+        }
+    }
+
+    // Hàm tìm kiếm vật liệu
+    // Hàm tìm kiếm vật liệu
+    async function searchMaterial() {
+        const statusMessage = document.getElementById("searchStatusMessage");
+        const materialsTable = document.getElementById("searchResultTable");
+        const tableBody = materialsTable.querySelector("tbody");
+        const searchInput = document.getElementById("searchInput").value.trim();
+
+        // Kiểm tra input trống
+        if (!searchInput) {
+            statusMessage.textContent = "Vui lòng nhập từ khóa tìm kiếm.";
             statusMessage.className = "error";
             return;
         }
 
-        materials.forEach(material => {
+        // Hiển thị trạng thái loading
+        statusMessage.textContent = "Đang tìm kiếm...";
+        statusMessage.className = "loading";
+        materialsTable.style.display = "none";
+        tableBody.innerHTML = "";
+
+        try {
+            // Lấy token từ cookie
+            const token = getCookie("token");
+            const response = await fetch(`http://localhost:8080/api/storekeeper/material/search?materialName=${encodeURIComponent(searchInput)}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            // Kiểm tra phản hồi HTTP
+            if (response.status === 204 || response.status === 404) {
+                statusMessage.textContent = "Không tìm thấy vật liệu.";
+                statusMessage.className = "error";
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            // Lấy dữ liệu JSON từ API
+            const material = await response.json();
+
+            // Hiển thị kết quả trong bảng
             const row = `
-                <tr>
-                    <td>${material.name}</td>
-                    <td>${material.quantity}</td>
-                    <td>${material.unit}</td>
-                </tr>
-            `;
-            tableBody.innerHTML += row;
-        });
-
-        statusMessage.textContent = "";
-        materialsTable.style.display = "table";
-    } catch (error) {
-        console.error("Lỗi:", error);
-        statusMessage.textContent = "Đã xảy ra lỗi khi tải danh sách vật liệu.";
-        statusMessage.className = "error";
-    }
-}
-
-
-        // Hàm tìm kiếm vật liệu
-async function searchMaterial() {
-    const statusMessage = document.getElementById("searchStatusMessage");
-    const materialsTable = document.getElementById("searchResultTable");
-    const tableBody = materialsTable.querySelector("tbody");
-    const searchInput = document.getElementById("searchInput").value.trim();
-
-    if (!searchInput) {
-        statusMessage.textContent = "Vui lòng nhập từ khóa tìm kiếm.";
-        statusMessage.className = "error";
-        return;
-    }
-
-    statusMessage.textContent = "Đang tìm kiếm...";
-    statusMessage.className = "loading";
-    materialsTable.style.display = "none";
-    tableBody.innerHTML = "";
-
-    try {
-        // Mock response
-        const mockResponse = {
-            name: "Laptop Charger",
-            quantity: 30,
-            unit: "pieces"
-        };
-
-        // Kiểm tra từ khóa tìm kiếm khớp với tên vật liệu trong mock response
-        if (mockResponse.name.toLowerCase().includes(searchInput.toLowerCase())) {
-            const row = `
-                <tr>
-                    <td>${mockResponse.name}</td>
-                    <td>${mockResponse.quantity}</td>
-                    <td>${mockResponse.unit}</td>
-                </tr>
-            `;
-            tableBody.innerHTML += row;
+            <tr>
+                <td>${material.name}</td>
+                <td>${material.quantity}</td>
+                <td>${material.unit}</td>
+            </tr>
+        `;
+            tableBody.innerHTML = row;
 
             statusMessage.textContent = "";
             materialsTable.style.display = "table";
-        } else {
-            statusMessage.textContent = "Không tìm thấy vật liệu.";
+        } catch (error) {
+            console.error("Lỗi:", error);
+            statusMessage.textContent = "Đã xảy ra lỗi khi tìm kiếm vật liệu.";
             statusMessage.className = "error";
         }
-    } catch (error) {
-        console.error("Lỗi:", error);
-        statusMessage.textContent = "Đã xảy ra lỗi khi tìm kiếm vật liệu.";
-        statusMessage.className = "error";
     }
-}
 
-    </script>
+    // Hàm lấy cookie (hỗ trợ xác thực)
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+</script>
 </body>
 </html>

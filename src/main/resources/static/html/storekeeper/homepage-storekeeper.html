@@ -160,7 +160,10 @@
         <div class="navigation">
             <a href="view-requests.html">Xem Yêu Cầu Cung Cấp Vật Tư</a>
             <a href="manage-materials.html">Quản Lý Vật Tư</a>
-            <a href="create-purchase-request.html">Tạo Yêu Cầu Mua Sắm Vật Tư</a>
+            <a href="creat.html">Tạo Yêu Cầu Mua Sắm Vật Tư</a>
+            <a href="viewstore.html">Quản lý Kho Vật Tư</a>
+            <a href="list.html">Danh sách vật tư cung cấp cho giáo viên</a>
+            <a href="vieworder.html">Danh sách yêu cầu mua sắm</a>
         </div>
     </div>
 
@@ -181,10 +184,10 @@
         window.onload = function() {
             const username = getCookie('username');
             const role = getCookie('role');
-            
+
             // Hiển thị username
             document.getElementById('username').textContent = username || 'Unknown User';
-            
+
             // Hiển thị role với định dạng tiếng Việt
             let roleText = 'Unknown Role';
             if (role === 'STOREKEEPER') roleText = 'Nhân viên vật tư';

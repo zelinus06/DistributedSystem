@@ -36,67 +36,76 @@
     </style>
 </head>
 <body>
-    <h1>Danh Sách Yêu Cầu Mua Sắm Trang Thiết Bị</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Người Yêu Cầu</th>
-                <th>Loại Yêu Cầu</th>
-                <th>Danh Sách Vật Liệu</th>
-                <th>Mục Đích</th>
-                <th>Ngày Tạo</th>
-                <th>Trạng Thái</th>
-            </tr>
-        </thead>
-        <tbody id="orderTableBody">
-            <!-- Nội dung sẽ được thêm động -->
-        </tbody>
-    </table>
+<h1>Danh Sách Yêu Cầu Mua Sắm Trang Thiết Bị</h1>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Người Yêu Cầu</th>
+        <th>Loại Yêu Cầu</th>
+        <th>Danh Sách Vật Liệu</th>
+        <th>Mục Đích</th>
+        <th>Ngày Tạo</th>
+        <th>Trạng Thái</th>
+    </tr>
+    </thead>
+    <tbody id="orderTableBody">
+    <!-- Nội dung sẽ được thêm động -->
+    </tbody>
+</table>
 
-    <script>
-        // Hàm giả lập mock response
-        async function fetchOrderRequests() {
-            const tableBody = document.getElementById("orderTableBody");
+<script>
+    // Hàm lấy token từ cookies
+    function getTokenFromCookies() {
+        const name = "token=";
+        const decodedCookie = decodeURIComponent(document.cookie);
+        const cookies = decodedCookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i];
+            while (cookie.charAt(0) === ' ') {
+                cookie = cookie.substring(1);
+            }
+            if (cookie.indexOf(name) === 0) {
+                return cookie.substring(name.length, cookie.length);
+            }
+        }
+        return "";
+    }
 
-            // Mock response
-            const orders = [
-                {
-                    "id": "67623e3a962b8f0eeb0f1441",
-                    "requesterName": "thaistorekeeper",
-                    "topicName": "OrderRequest",
-                    "type": "MaterialOrder",
-                    "materials": [
-                        {
-                            "name": "Laptop",
-                            "quantity": 5,
-                            "unit": "pcs",
-                            "price": 200000
-                        },
-                        {
-                            "name": "Mouse",
-                            "quantity": 10,
-                            "unit": "pcs",
-                            "price": 200000
-                        }
-                    ],
-                    "purpose": "Procurement for new employees",
-                    "date": "2024-12-18 03:15:06",
-                    "status": "pending",
-                    "approvedBy": null,
-                    "approvedDate": null
+    // Hàm gọi API để lấy danh sách yêu cầu
+    async function fetchOrderRequests() {
+        const tableBody = document.getElementById("orderTableBody");
+        const token = getTokenFromCookies();  // Lấy token từ cookies
+
+        if (!token) {
+            alert("Vui lòng đăng nhập.");
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:8080/api/storekeeper/order/view', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,  // Gửi token trong header
+                    'Content-Type': 'application/json'
                 }
-            ];
+            });
 
-            try {
-                // Xóa nội dung cũ trong bảng
-                tableBody.innerHTML = "";
+            // Kiểm tra xem yêu cầu có thành công không
+            if (!response.ok) {
+                throw new Error('Lỗi khi gọi API');
+            }
 
-                // Hiển thị từng yêu cầu trong bảng
-                orders.forEach(order => {
-                    const row = document.createElement("tr");
+            const orders = await response.json();
 
-                    row.innerHTML = `
+            // Xóa nội dung cũ trong bảng
+            tableBody.innerHTML = "";
+
+            // Hiển thị từng yêu cầu trong bảng
+            orders.forEach(order => {
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
                         <td>${order.id}</td>
                         <td>${order.requesterName}</td>
                         <td>${order.type}</td>
@@ -114,16 +123,16 @@
                         </td>
                     `;
 
-                    tableBody.appendChild(row);
-                });
-            } catch (error) {
-                console.error("Lỗi khi tải yêu cầu:", error);
-                tableBody.innerHTML = `<tr><td colspan="7">Không thể tải danh sách yêu cầu. Vui lòng thử lại sau.</td></tr>`;
-            }
+                tableBody.appendChild(row);
+            });
+        } catch (error) {
+            console.error("Lỗi khi tải yêu cầu:", error);
+            tableBody.innerHTML = `<tr><td colspan="7">Không thể tải danh sách yêu cầu. Vui lòng thử lại sau.</td></tr>`;
         }
+    }
 
-        // Gọi hàm fetch khi tải trang
-        fetchOrderRequests();
-    </script>
+    // Gọi hàm fetch khi tải trang
+    fetchOrderRequests();
+</script>
 </body>
 </html>

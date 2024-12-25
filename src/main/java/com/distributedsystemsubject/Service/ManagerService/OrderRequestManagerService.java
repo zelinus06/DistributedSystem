@@ -24,7 +24,7 @@ public class OrderRequestManagerService {
         if (materialOrder.isPresent()) {
             MaterialOrder order = materialOrder.get();
             if (isApproved) {
-                order.setStatus("Approved");
+                order.setStatus("approved");
                 order.setApprovedBy(username);
                 String approvedDateString = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
                 order.setApprovedDate(approvedDateString);

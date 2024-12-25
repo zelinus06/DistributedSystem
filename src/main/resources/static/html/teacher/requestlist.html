@@ -35,6 +35,7 @@
                 <th>Trạng Thái</th>
                 <th>Ngày Tạo</th>
                 <th>Người Phê Duyệt</th>
+                <th>Người Từ Chối</th>
             </tr>
         </thead>
         <tbody id="request-table-body">
@@ -95,6 +96,7 @@
                     <td>${request.status}</td>
                     <td>${request.date}</td>
                     <td>${request.approvedBy || "--"}</td>
+                    <td>${request.rejectedBy || "--"}</td>
                 `;
                     tableBody.appendChild(row);
                 });
@@ -103,7 +105,6 @@
                 tableBody.innerHTML = `<tr><td colspan="8">Lỗi khi tải dữ liệu.</td></tr>`;
             }
         }
-
         fetchAndRenderRequests();
     </script>
 </body>
