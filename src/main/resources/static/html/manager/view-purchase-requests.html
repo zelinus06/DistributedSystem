@@ -4,325 +4,256 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phê duyệt Yêu cầu Mua sắm</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: Arial, sans-serif;
+            }
 
-        body {
-            padding: 20px;
-            background: #f5f5f5;
-        }
+            body {
+                padding: 20px;
+                background: #f5f5f5;
+            }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
 
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
+            h1 {
+                text-align: center;
+                color: #333;
+                margin-bottom: 20px;
+            }
 
-        .request-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
+            .request-card {
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+            }
 
-        .request-header {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
-        }
+            .request-header {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+                margin-bottom: 15px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid #eee;
+            }
 
-        .request-info {
-            font-size: 0.9em;
-        }
+            .request-info {
+                font-size: 0.9em;
+            }
 
-        .request-info span {
-            font-weight: bold;
-            color: #555;
-        }
+            .request-info span {
+                font-weight: bold;
+                color: #555;
+            }
 
-        .materials-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
-        }
+            .materials-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 15px 0;
+            }
 
-        .materials-table th,
-        .materials-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
+            .materials-table th,
+            .materials-table td {
+                padding: 12px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
 
-        .materials-table th {
-            background-color: #f8f9fa;
-            font-weight: bold;
-        }
+            .materials-table th {
+                background-color: #f8f9fa;
+                font-weight: bold;
+            }
 
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
+            .btn-group {
+                display: flex;
+                gap: 10px;
+                margin-top: 15px;
+            }
 
-        .btn {
-            padding: 8px 16px;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9em;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+            .btn {
+                padding: 8px 16px;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 0.9em;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
 
-        .btn-approve {
-            background-color: #28a745;
-        }
+            .btn-approve {
+                background-color: #28a745;
+            }
 
-        .btn-approve:hover {
-            background-color: #218838;
-        }
+            .btn-approve:hover {
+                background-color: #218838;
+            }
 
-        .btn-reject {
-            background-color: #dc3545;
-        }
+            .btn-reject {
+                background-color: #dc3545;
+            }
 
-        .btn-reject:hover {
-            background-color: #c82333;
-        }
+            .btn-reject:hover {
+                background-color: #c82333;
+            }
 
-        .btn:disabled {
-            background-color: #6c757d;
-            cursor: not-allowed;
-        }
+            .btn:disabled {
+                background-color: #6c757d;
+                cursor: not-allowed;
+            }
 
-        .status {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.85em;
-            font-weight: bold;
-        }
+            .status {
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 0.85em;
+                font-weight: bold;
+            }
 
-        .status-pending {
-            background-color: #ffeeba;
-            color: #856404;
-        }
+            .status-pending {
+                background-color: #ffeeba;
+                color: #856404;
+            }
 
-        .status-approved {
-            background-color: #d4edda;
-            color: #155724;
-        }
+            .status-approved {
+                background-color: #d4edda;
+                color: #155724;
+            }
 
-        .status-rejected {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
+            .status-rejected {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
 
-        .total-row {
-            font-weight: bold;
-            background-color: #f8f9fa;
-        }
+            .total-row {
+                font-weight: bold;
+                background-color: #f8f9fa;
+            }
 
-        .message {
-            text-align: center;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
-            display: none;
-        }
+            .message {
+                text-align: center;
+                padding: 10px;
+                margin: 10px 0;
+                border-radius: 4px;
+                display: none;
+            }
 
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-            display: block;
-        }
+            .success {
+                background-color: #d4edda;
+                color: #155724;
+                display: block;
+            }
 
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-        }
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+                justify-content: center;
+                align-items: center;
+            }
 
-        .modal-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            width: 400px;
-        }
+            .modal-content {
+                background-color: white;
+                padding: 20px;
+                border-radius: 8px;
+                width: 400px;
+            }
 
-        .modal-title {
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
+            .modal-title {
+                margin-bottom: 15px;
+                font-weight: bold;
+            }
 
-        .modal textarea {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            min-height: 100px;
-        }
+            .modal textarea {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 15px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                min-height: 100px;
+            }
 
-        .modal-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-    </style>
+            .modal-buttons {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+            }
+        </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Phê duyệt Yêu cầu Mua sắm</h1>
-        <div id="message" class="message"></div>
-        <div id="requests-container"></div>
-    </div>
+<div class="container">
+    <h1>Phê duyệt Yêu cầu Mua sắm</h1>
+    <div id="message" class="message"></div>
+    <div id="requests-container"></div>
+</div>
 
-    <!-- Modal từ chối -->
-    <div id="rejectModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-title">Lý do từ chối</div>
-            <textarea id="rejectReason" placeholder="Nhập lý do từ chối..."></textarea>
-            <div class="modal-buttons">
-                <button class="btn btn-reject" onclick="confirmReject()">Xác nhận</button>
-                <button class="btn" style="background-color: #6c757d;" onclick="closeRejectModal()">Hủy</button>
-            </div>
+<!-- Modal từ chối -->
+<div id="rejectModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-title">Lý do từ chối</div>
+        <textarea id="rejectReason" placeholder="Nhập lý do từ chối..."></textarea>
+        <div class="modal-buttons">
+            <button class="btn btn-reject" onclick="confirmReject()">Xác nhận</button>
+            <button class="btn" style="background-color: #6c757d;" onclick="closeRejectModal()">Hủy</button>
         </div>
     </div>
+</div>
 
-    <script>
-        // Mock data
-        const mockRequests = [
-            {
-                "id": "67623e3a962b8f0eeb0f1441",
-                "requesterName": "thaistorekeeper",
-                "topicName": "OrderRequest",
-                "type": "MaterialOrder",
-                "materials": [
-                    {
-                        "name": "Laptop",
-                        "quantity": 5,
-                        "unit": "pcs",
-                        "price": 200000
-                    },
-                    {
-                        "name": "Mouse",
-                        "quantity": 10,
-                        "unit": "pcs",
-                        "price": 200000
-                    }
-                ],
-                "purpose": "Procurement for new employees",
-                "date": "2024-12-18 03:15:06",
-                "status": "pending",
-                "approvedBy": null,
-                "approvedDate": null,
-                "rejectReason": null
+<script>
+    let currentRequestId = null;
+    const apiUrl = 'http://localhost:8080/api/manager/order/view'; // URL API
+
+    // Lấy token từ cookies
+    function getTokenFromCookies() {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; token=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    // Gửi yêu cầu API và render dữ liệu
+    function fetchRequests() {
+        const token = getTokenFromCookies();
+        if (!token) {
+            showMessage('Vui lòng đăng nhập để truy cập dữ liệu.');
+            return;
+        }
+
+        fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             }
-        ];
+        })
+            .then(response => response.json())
+            .then(data => renderRequests(data))
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                showMessage('Đã có lỗi xảy ra, vui lòng thử lại.');
+            });
+    }
 
-        let currentRequestId = null;
-
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
-        }
-
-        function formatDate(dateString) {
-            return new Date(dateString).toLocaleString('vi-VN');
-        }
-
-        function showMessage(text) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.textContent = text;
-            messageDiv.className = 'message success';
-            setTimeout(() => {
-                messageDiv.className = 'message';
-            }, 3000);
-        }
-
-        function approveRequest(requestId) {
-            const request = mockRequests.find(r => r.id === requestId);
-            if (request) {
-                request.status = 'approved';
-                request.approvedBy = 'Director';
-                request.approvedDate = new Date().toISOString();
-                renderRequests();
-                showMessage('Yêu cầu đã được phê duyệt!');
-            }
-        }
-
-        function showRejectModal(requestId) {
-            currentRequestId = requestId;
-            document.getElementById('rejectModal').style.display = 'flex';
-            document.getElementById('rejectReason').value = '';
-        }
-
-        function closeRejectModal() {
-            document.getElementById('rejectModal').style.display = 'none';
-            currentRequestId = null;
-        }
-
-        function confirmReject() {
-            const reason = document.getElementById('rejectReason').value;
-            if (!reason.trim()) {
-                alert('Vui lòng nhập lý do từ chối');
-                return;
-            }
-
-            const request = mockRequests.find(r => r.id === currentRequestId);
-            if (request) {
-                request.status = 'rejected';
-                request.approvedBy = 'Director';
-                request.approvedDate = new Date().toISOString();
-                request.rejectReason = reason;
-                renderRequests();
-                showMessage('Yêu cầu đã bị từ chối!');
-            }
-            closeRejectModal();
-        }
-
-        function calculateTotal(materials) {
-            return materials.reduce((total, item) => total + (item.quantity * item.price), 0);
-        }
-
-        function getStatusText(status) {
-            switch(status) {
-                case 'pending': return 'Chờ duyệt';
-                case 'approved': return 'Đã duyệt';
-                case 'rejected': return 'Đã từ chối';
-                default: return status;
-            }
-        }
-
-        function renderRequests() {
-            const container = document.getElementById('requests-container');
-            container.innerHTML = mockRequests.map(request => {
-                const total = calculateTotal(request.materials);
-                return `
+    function renderRequests(requests) {
+        const container = document.getElementById('requests-container');
+        container.innerHTML = requests.map(request => {
+            const total = calculateTotal(request.materials);
+            return `
                     <div class="request-card">
                         <div class="request-header">
                             <div class="request-info">
@@ -332,7 +263,7 @@
                             </div>
                             <div class="request-info">
                                 <p><span>Ngày yêu cầu:</span> ${formatDate(request.date)}</p>
-                                <p><span>Trạng thái:</span> 
+                                <p><span>Trạng thái:</span>
                                     <span class="status status-${request.status}">
                                         ${getStatusText(request.status)}
                                     </span>
@@ -384,11 +315,141 @@
                         ` : ''}
                     </div>
                 `;
-            }).join('');
+        }).join('');
+    }
+
+    function calculateTotal(materials) {
+        return materials.reduce((total, item) => total + (item.quantity * item.price), 0);
+    }
+
+    function showRejectModal(requestId) {
+        currentRequestId = requestId;
+        document.getElementById('rejectModal').style.display = 'flex';
+        document.getElementById('rejectReason').value = '';
+    }
+
+    function confirmReject() {
+        const reason = document.getElementById('rejectReason').value;
+        if (!reason.trim()) {
+            alert('Vui lòng nhập lý do từ chối');
+            return;
         }
 
-        // Khởi tạo dữ liệu ban đầu
-        renderRequests();
-    </script>
+        const token = getTokenFromCookies();
+        if (!token) {
+            showMessage('Vui lòng đăng nhập để thực hiện hành động này.');
+            return;
+        }
+        const url = `http://localhost:8080/api/manager/order/approve?id=${currentRequestId}&isApproved=false`;
+        const payload = {
+            rejectReason: reason
+        };
+
+        // Gửi yêu cầu từ chối đến API
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showMessage('Yêu cầu đã bị từ chối!');
+                    fetchRequests();
+                } else {
+                    showMessage('Đã có lỗi xảy ra, vui lòng thử lại.');
+                }
+            })
+            .catch(error => {
+                console.error('Error rejecting request:', error);
+                showMessage('Đã có lỗi xảy ra, vui lòng thử lại.');
+            });
+
+        closeRejectModal();
+    }
+
+    function closeRejectModal() {
+        document.getElementById('rejectModal').style.display = 'none';
+        currentRequestId = null;
+    }
+
+
+    function approveRequest(id) {
+        const token = getTokenFromCookies();
+        if (!token) {
+            showMessage('Vui lòng đăng nhập để phê duyệt yêu cầu.');
+            return;
+        }
+
+        const isApproved = true;  // Hoặc lấy giá trị từ UI nếu cần
+
+        fetch(`http://localhost:8080/api/manager/order/approve?id=${id}&isApproved=${isApproved}`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,  // Thêm token vào header
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id, isApproved })
+        })
+            .then(response => {
+                if (response.ok) {
+                    showMessage('Yêu cầu đã được phê duyệt thành công.');
+                    fetchRequests();  // Tải lại danh sách yêu cầu
+                } else {
+                    throw new Error('Có lỗi xảy ra khi phê duyệt yêu cầu.');
+                }
+            })
+            .catch(error => {
+                console.error('Error approving request:', error);
+                showMessage('Đã có lỗi xảy ra, vui lòng thử lại.');
+            });
+    }
+
+
+    function getStatusText(status) {
+                    switch (status) {
+                        case 'pending':
+                            return 'Chờ duyệt';
+                        case 'approved':
+                            return 'Đã duyệt';
+                        case 'rejected':
+                            return 'Đã từ chối';
+                        default:
+                            return status;
+                    }
+    }
+
+
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+    }
+
+    function formatDate(dateString) {
+        return new Date(dateString).toLocaleString('vi-VN');
+    }
+
+    function getStatusText(status) {
+        switch(status) {
+            case 'pending': return 'Chờ duyệt';
+            case 'approved': return 'Đã duyệt';
+            case 'rejected': return 'Đã từ chối';
+            default: return status;
+        }
+    }
+
+    function showMessage(text) {
+        const messageDiv = document.getElementById('message');
+        messageDiv.textContent = text;
+        messageDiv.className = 'message success';
+        setTimeout(() => {
+            messageDiv.className = 'message';
+        }, 3000);
+    }
+
+    // Khởi tạo dữ liệu ban đầu khi trang được tải
+    fetchRequests();
+</script>
 </body>
 </html>

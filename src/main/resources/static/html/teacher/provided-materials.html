@@ -130,19 +130,12 @@
     </div>
 
     <script>
-        // Mock data
-        const mockData = [
-            {
-                "name": "Projector Bulb",
-                "quantity": 12,
-                "unit": "pieces"
-            },
-            {
-                "name": "Whiteboard Marker",
-                "quantity": 10,
-                "unit": "pieces"
-            }
-        ];
+        // Hàm lấy cookie theo tên
+        function getCookie(name) {
+            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            if (match) return match[2];
+            return null;
+        }
 
         // Hiển thị thông báo
         function showMessage(text, isError = false) {
@@ -155,45 +148,130 @@
             }, 3000);
         }
 
-        // Cập nhật số lượng
-        function updateQuantity(index) {
-            const newQuantity = parseInt(document.getElementById(`quantity-${index}`).value);
-            if (isNaN(newQuantity) || newQuantity < 0) {
-                showMessage('Số lượng không hợp lệ!', true);
+        // Lấy dữ liệu từ API và hiển thị danh sách vật tư
+        async function fetchSupplies() {
+            const token = getCookie('token'); // Lấy token từ cookie
+            if (!token) {
+                showMessage('Không tìm thấy token. Vui lòng đăng nhập lại.', true);
                 return;
             }
 
-            // Trong thực tế, đây sẽ là một API call
-            mockData[index].quantity = newQuantity;
-            renderSupplies();
-            showMessage('Cập nhật thành công!');
+            try {
+                const response = await fetch('http://localhost:8080/api/teacher/material/view', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Lỗi khi gọi API: ' + response.statusText);
+                }
+
+                const supplies = await response.json(); // Phản hồi từ API dưới dạng JSON
+                renderSupplies(supplies); // Gọi hàm renderSupplies để hiển thị danh sách vật tư
+            } catch (error) {
+                console.error('Lỗi khi lấy dữ liệu vật tư:', error);
+                showMessage('Có lỗi xảy ra khi lấy dữ liệu vật tư. Vui lòng thử lại.', true);
+            }
+        }
+
+        async function updateQuantity() {
+            const supplies = [];
+            const inputs = document.querySelectorAll('.quantity-input');
+            inputs.forEach((input) => {
+                const row = input.closest('tr');
+                const name = row.querySelector('.material-name').textContent.trim();
+                const unit = row.querySelector('.material-unit').textContent.trim();
+                const quantity = input.value;
+                console.log(name, quantity, unit);
+
+                if (quantity) {
+                    supplies.push({
+                        name: name,
+                        quantity: quantity,
+                        unit: unit
+                    });
+                }
+            });
+
+            if (supplies.length === 0) {
+                showMessage('Không có vật tư nào để cập nhật!', true);
+                return;
+            }
+
+            const token = getCookie('token'); // Lấy token từ cookie
+            if (!token) {
+                showMessage('Không tìm thấy token. Vui lòng đăng nhập lại.', true);
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/api/teacher/material/consume', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ materials: supplies })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Lỗi khi cập nhật vật tư');
+                }
+
+                const result = await response.json();
+                showMessage(result.message); // Hiển thị thông báo từ API
+                fetchSupplies();
+            } catch (error) {
+                console.error('Lỗi khi cập nhật số lượng vật tư:', error);
+                showMessage('Có lỗi xảy ra khi cập nhật số lượng. Vui lòng thử lại.', true);
+            }
         }
 
         // Render danh sách vật tư
-        function renderSupplies() {
+        function renderSupplies(supplies) {
             const suppliesList = document.getElementById('supplies-list');
-            suppliesList.innerHTML = mockData.map((item, index) => `
-                <tr>
-                    <td>${item.name}</td>
-                    <td>
-                        <input type="number" id="quantity-${index}" 
-                               class="quantity-input" 
-                               value="${item.quantity}" 
-                               min="0">
-                    </td>
-                    <td>${item.unit}</td>
-                    <td>
-                        <button class="update-btn" 
-                                onclick="updateQuantity(${index})">
-                            Cập nhật
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
+            suppliesList.innerHTML = supplies.map((item, index) => `
+        <tr>
+            <td class="material-name">${item.name}</td>
+            <td>
+                <input type="number" id="quantity-${index}"
+                       class="quantity-input"
+                       value="${item.quantity}"
+                       min="0">
+            </td>
+            <td class="material-unit">${item.unit}</td>
+            <td>
+                <button class="update-btn"
+                        onclick="updateQuantity()">
+                    Cập nhật
+                </button>
+            </td>
+        </tr>
+    `).join('');
+
+            // Đảm bảo giá trị nhập vào không vượt quá giá trị ban đầu
+            const inputs = document.querySelectorAll('.quantity-input');
+            inputs.forEach(input => {
+                const initialValue = parseInt(input.value, 10); // Lưu giá trị ban đầu
+
+                input.addEventListener('input', function() {
+                    const currentValue = parseInt(input.value, 10);
+
+                    // Nếu giá trị mới lớn hơn giá trị ban đầu, đặt lại giá trị input
+                    if (currentValue > initialValue) {
+                        input.value = initialValue; // Đặt lại về giá trị ban đầu nếu cố gắng tăng
+                        showMessage('Không thể tăng số lượng vật tư.', true); // Thông báo lỗi
+                    }
+                });
+            });
         }
 
         // Khởi tạo dữ liệu ban đầu
-        renderSupplies();
+        fetchSupplies();
+
     </script>
 </body>
 </html>

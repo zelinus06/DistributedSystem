@@ -7,6 +7,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/manager/order")
 public class ApproveOrderRequestController {
@@ -22,7 +24,7 @@ public class ApproveOrderRequestController {
     public ResponseEntity<?> approveOrderRequest(@RequestParam String id, @RequestParam Boolean isApproved) {
         try {
             orderRequestManagerService.approveOrderRequest(id, isApproved, getRequesterName());
-            return ResponseEntity.ok("Order request approved");
+            return ResponseEntity.ok(Map.of("success", "Đã xác nhận"));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
