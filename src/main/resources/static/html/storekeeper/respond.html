@@ -180,7 +180,7 @@
             const semester = document.getElementById("semester").value.trim();
             const purpose = document.getElementById("purpose").value.trim();
             const source = document.getElementById("source").value.trim();
-
+        
             // Lấy danh sách vật tư
             const materials = [];
             document.querySelectorAll(".material-entry").forEach(entry => {
@@ -195,13 +195,14 @@
                     });
                 }
             });
-
+        
             // Kiểm tra đầu vào
             if (!requestId || !teacherName || !classroomsInput || !semester || !purpose || !source || materials.length === 0) {
                 alert("Vui lòng điền đầy đủ thông tin!");
                 return;
             }
-
+        
+            // Tạo payload
             const payload = {
                 requestId: requestId,
                 teacherName: teacherName,
@@ -211,8 +212,12 @@
                 purpose: purpose,
                 source: source
             };
-
+        
+            // In payload vào console
+            console.log("Payload gửi đi:", payload);
+        
             try {
+                // Gửi request
                 const response = await fetch("http://localhost:8080/api/storekeeper/provide/create", {
                     method: "POST",
                     headers: {
@@ -220,11 +225,16 @@
                     },
                     body: JSON.stringify(payload)
                 });
-
+        
+                // Kiểm tra phản hồi
                 if (response.ok) {
-                    showModal(); // Hiển thị modal khi gửi thành công
+                    const responseData = await response.json();
+                    console.log("Phản hồi từ server:", responseData); // In ra phản hồi JSON
+                    alert("Gửi thành công với mã phản hồi: 200");
+                    showModal(); // Hiển thị modal
                 } else {
                     const errorData = await response.text();
+                    console.error("Lỗi từ server:", errorData); // In lỗi từ server
                     alert(`Lỗi: ${errorData}`);
                 }
             } catch (error) {
@@ -232,6 +242,7 @@
                 alert("Không thể kết nối đến server.");
             }
         }
+        
 
     </script>
 </body>

@@ -17,7 +17,7 @@
             width: 70%; 
             max-width: 1000px; 
             margin: 80px auto 20px auto; 
-            background-color: rgba(255, 255, 255, 0.8); 
+            background-color: #fff; 
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
@@ -95,35 +95,91 @@
             const statusMessage = document.getElementById("statusMessage");
             const requestsTable = document.getElementById("requestsTable");
             const tableBody = requestsTable.querySelector("tbody");
-
+        
             statusMessage.textContent = "Đang tải dữ liệu...";
             statusMessage.className = "loading";
             requestsTable.style.display = "none";
             tableBody.innerHTML = "";
-
-            try {
-                const response = await fetch("http://localhost:8080/api/storekeeper/provide/view", {
-                    method: "GET"
-                });
-
-                if (!response.ok) {
-                    throw new Error("Không thể tải dữ liệu từ server");
+        
+            // Mock response
+            const mockResponse = [
+                {
+                    "id": "67613eaa3109a23eb8f0860e",
+                    "requestId": "67613ac3b9ba901d7fb09a5b",
+                    "storekeeperName": "thaistorekeeper",
+                    "topicName": "ProvideRequest",
+                    "teacherName": "thaiteacher",
+                    "type": "MaterialProvide",
+                    "materials": [
+                        {
+                            "name": "Whiteboard Marker",
+                            "quantity": 5,
+                            "unit": "pieces"
+                        },
+                        {
+                            "name": "Projector Bulb",
+                            "quantity": 5,
+                            "unit": "pieces"
+                        }
+                    ],
+                    "classrooms": [
+                        "Room 101",
+                        "Room 102"
+                    ],
+                    "semester": "Fall 2024",
+                    "purpose": "Teaching purposes",
+                    "date": "2024-12-17 09:04:42",
+                    "status": "confirmed",
+                    "source": "67613d7bd6d5e23a7d90a609"
+                },
+                {
+                    "id": "6761849486872ecb7c4dd4e1",
+                    "requestId": "67613ac3b9ba901d7fb09a5a",
+                    "storekeeperName": "thaistorekeeper",
+                    "topicName": "ProvideRequest",
+                    "teacherName": "thaiteacher",
+                    "type": "MaterialProvide",
+                    "materials": [
+                        {
+                            "name": "Whiteboard Marker",
+                            "quantity": 5,
+                            "unit": "pieces"
+                        },
+                        {
+                            "name": "Projector Bulb",
+                            "quantity": 5,
+                            "unit": "pieces"
+                        }
+                    ],
+                    "classrooms": [
+                        "Room 101",
+                        "Room 102"
+                    ],
+                    "semester": "Fall 2024",
+                    "purpose": "Teaching purposes",
+                    "date": "2024-12-17 09:04:42",
+                    "status": "confirmed",
+                    "source": "67613d7bd6d5e23a7d90a609"
                 }
-
-                const data = await response.json();
+            ];
+        
+            try {
+                // Sử dụng dữ liệu mock thay vì gọi API thực
+                const data = mockResponse;
+        
                 if (data.length === 0) {
                     statusMessage.textContent = "Không có dữ liệu!";
                     statusMessage.className = "error";
                     return;
                 }
-
+        
                 data.forEach(request => {
                     const materials = request.materials.map(material => 
                         `${material.name} (${material.quantity} ${material.unit})`
                     ).join(", ");
-
+        
                     const classrooms = request.classrooms.join(", ");
-
+        
                     const row = ` 
                         <tr>
                             <td>${request.id}</td>
@@ -137,10 +193,10 @@
                             <td>${request.date}</td>
                         </tr>
                     `;
-
+        
                     tableBody.innerHTML += row;
                 });
-
+        
                 statusMessage.textContent = "";
                 requestsTable.style.display = "table";
             } catch (error) {
@@ -149,6 +205,8 @@
                 statusMessage.className = "error";
             }
         }
+        
+        
     </script>
 </body>
 </html>
