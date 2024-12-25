@@ -47,8 +47,32 @@
     <script>
         async function fetchAndRenderRequests() {
             const tableBody = document.getElementById("request-table-body");
+
             try {
-                const response = await fetch("http://localhost:8080/api/teacher/request/view");
+                // Lấy token từ cookie
+                const token = document.cookie
+                    .split("; ")
+                    .find(row => row.startsWith("token="))
+                    ?.split("=")[1];
+
+                if (!token) {
+                    tableBody.innerHTML = `<tr><td colspan="8">Không tìm thấy token xác thực.</td></tr>`;
+                    return;
+                }
+
+                // Gọi API với token trong header
+                const response = await fetch("http://localhost:8080/api/teacher/request/view", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
                 const data = await response.json();
 
                 if (!data.content || data.content.length === 0) {
@@ -59,7 +83,9 @@
                 tableBody.innerHTML = ""; // Xóa thông báo "Đang tải dữ liệu"
                 data.content.forEach((request, index) => {
                     const row = document.createElement("tr");
-                    const materials = request.materials.map(item => `${item.name}: ${item.quantity} ${item.unit}`).join("<br>");
+                    const materials = request.materials
+                        .map(item => `${item.name}: ${item.quantity} ${item.unit}`)
+                        .join("<br>");
                     row.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${request.requesterName}</td>
@@ -77,7 +103,9 @@
                 tableBody.innerHTML = `<tr><td colspan="8">Lỗi khi tải dữ liệu.</td></tr>`;
             }
         }
+
         fetchAndRenderRequests();
     </script>
+
 </body>
 </html>
