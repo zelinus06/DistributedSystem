@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách tài khoản</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Danh sách tài khoản</h1>
+    <button onclick="extractData()">Trích xuất thông tin</button>
+    
+    <div id="tableContainer" style="display: none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Enabled</th>
+                    <th>Authorities</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <!-- Dữ liệu sẽ được thêm vào đây -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        const data = [
+            {
+                "id": "6725fca7b593e045ed87af7a",
+                "username": "thaiteacher",
+                "role": "TEACHER",
+                "enabled": true,
+                "authorities": [
+                    {"authority": "TEACHER"}
+                ]
+            },
+            {
+                "id": "67591bd7bc7dde4d6bf1750f",
+                "username": "thaistorekeeper",
+                "role": "STOREKEEPER",
+                "enabled": true,
+                "authorities": [
+                    {"authority": "STOREKEEPER"}
+                ]
+            },
+            {
+                "id": "67623cb529d5c8a243c68fa3",
+                "username": "thaimanager",
+                "role": "MANAGER",
+                "enabled": true,
+                "authorities": [
+                    {"authority": "MANAGER"}
+                ]
+            },
+            {
+                "id": "67623cc229d5c8a243c68fa4",
+                "username": "thaiaccountant",
+                "role": "ACCOUNTANT",
+                "enabled": true,
+                "authorities": [
+                    {"authority": "ACCOUNTANT"}
+                ]
+            },
+            {
+                "id": "6762a7e0dc0402af19852c69",
+                "username": "thaiadmin",
+                "role": "ADMIN",
+                "enabled": true,
+                "authorities": [
+                    {"authority": "ADMIN"}
+                ]
+            },
+            {
+                "id": "6762a99e36acef5a7fd3d0b6",
+                "username": "johndoe",
+                "role": "TEACHER",
+                "enabled": true,
+                "authorities": [
+                    {"authority": "TEACHER"}
+                ]
+            }
+        ];
+
+        function extractData() {
+            // Hiển thị bảng
+            document.getElementById('tableContainer').style.display = 'block';
+
+            // Lấy phần tử tbody của bảng
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = ''; // Xóa dữ liệu cũ nếu có
+
+            // Thêm dữ liệu vào bảng
+            data.forEach(account => {
+                const row = document.createElement('tr');
+
+                // Tạo các ô cho mỗi tài khoản
+                row.innerHTML = `
+                    <td>${account.id}</td>
+                    <td>${account.username}</td>
+                    <td>${account.role}</td>
+                    <td>${account.enabled}</td>
+                    <td>${account.authorities.map(auth => auth.authority).join(', ')}</td>
+                `;
+
+                // Thêm dòng vào bảng
+                tableBody.appendChild(row);
+            });
+        }
+    </script>
+</body>
+</html>
