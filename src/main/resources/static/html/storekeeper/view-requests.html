@@ -125,135 +125,160 @@
     </div>
 
     <script>
-        const mockData = {
-            "content": [
-                {
-                    "id": "6761497d1a1ef936f040f4b7",
-                    "requesterName": "thaiteacher",
-                    "topicName": "SupplyRequest",
-                    "type": "MaterialSupply",
-                    "materials": [
-                        {
-                            "name": "Whiteboard Marker",
-                            "quantity": 10,
-                            "unit": "pieces"
-                        },
-                        {
-                            "name": "Projector Bulb",
-                            "quantity": 5,
-                            "unit": "pieces"
-                        }
-                    ],
-                    "classrooms": ["Room 101", "Room 102"],
-                    "semester": "Fall 2024",
-                    "purpose": "Teaching purposes",
-                    "date": "2024-12-17 09:50:53",
-                    "status": "approved",
-                    "approvedBy": "thaistorekeeper",
-                    "approvedDate": "2024-12-17 16:57:22"
-                },
-                {
-                    "id": "676149911a1ef936f040f4b8",
-                    "requesterName": "thaiteacher",
-                    "type": "MaterialSupply",
-                    "materials": [
-                        {
-                            "name": "Whiteboard Marker",
-                            "quantity": 7,
-                            "unit": "pieces"
-                        },
-                        {
-                            "name": "Projector Bulb",
-                            "quantity": 7,
-                            "unit": "pieces"
-                        }
-                    ],
-                    "classrooms": ["Room 101", "Room 102"],
-                    "semester": "Fall 2024",
-                    "purpose": "Teaching purposes",
-                    "date": "2024-12-17 09:51:13",
-                    "status": "pending"
-                }
-            ]
-        };
+        async function fetchRequests() {
+            try {
+                // Lấy token từ cookie
+                const token = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('token='))
+                    ?.split('=')[1];
 
-        function formatDate(dateString) {
-            return dayjs(dateString).format('YYYY-MM-DD HH:mm');
+                if (!token) {
+                    alert('Không tìm thấy token!');
+                    return;
+                }
+
+                const response = await fetch('http://localhost:8080/api/storekeeper/request/view', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                window.requests = data.content;
+                renderTable(data.content);
+            } catch (error) {
+                console.error('Failed to fetch requests:', error);
+            }
         }
 
-        function renderTable() {
+        function renderTable(requests) {
             const tbody = document.querySelector('#requestTable tbody');
             tbody.innerHTML = '';
-            
-            mockData.content.forEach(request => {
+
+            requests.forEach(request => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${request.requesterName}</td>
-                    <td>${request.type}</td>
-                    <td>${formatDate(request.date)}</td>
-                    <td><span class="status status-${request.status.toLowerCase()}">${request.status}</span></td>
-                    <td>
-                        <button class="btn btn-details" onclick="showDetails('${request.id}')">Details</button>
-                        ${request.status === 'pending' ? `
-                            <button class="btn btn-approve" onclick="handleApproval('${request.id}', 'approved')">Approve</button>
-                            <button class="btn btn-reject" onclick="handleApproval('${request.id}', 'rejected')">Reject</button>
-                        ` : ''}
-                    </td>
-                `;
+            <td>${request.requesterName}</td>
+            <td>${request.type}</td>
+            <td>${request.date}</td>
+            <td><span class="status status-${request.status.toLowerCase()}">${request.status}</span></td>
+            <td>
+                <button class="btn btn-details" onclick="showDetails('${request.id}')">Details</button>
+                ${request.status === 'pending' ? `
+                    <button class="btn btn-approve" onclick="handleApproval('${request.id}', 'true')">Approve</button>
+                    <button class="btn btn-reject" onclick="handleApproval('${request.id}', 'false')">Reject</button>
+                ` : ''}
+            </td>
+        `;
                 tbody.appendChild(row);
             });
         }
 
-        function showDetails(id) {
-            const request = mockData.content.find(r => r.id === id);
-            const modal = document.getElementById('detailsModal');
-            const content = document.getElementById('modalContent');
-            
-            content.innerHTML = `
-                <p><strong>ID:</strong> ${request.id}</p>
-                <p><strong>Người yêu cầu:</strong> ${request.requesterName}</p>
-                <p><strong>Loại yêu cầu:</strong> ${request.type}</p>
-                <p><strong>Học kỳ:</strong> ${request.semester}</p>
-                <p><strong>Mục đích:</strong> ${request.purpose}</p>
-                <p><strong>Phòng học:</strong> ${request.classrooms.join(', ')}</p>
-                <div class="material-list">
-                    <h3>Danh sách vật tư:</h3>
-                    ${request.materials.map(m => `
-                        <p>${m.name}: ${m.quantity} ${m.unit}</p>
-                    `).join('')}
-                </div>
-                <p><strong>Trạng thái:</strong> <span class="status status-${request.status.toLowerCase()}">${request.status}</span></p>
-                ${request.approvedBy ? `<p><strong>Người duyệt:</strong> ${request.approvedBy}</p>` : ''}
-                ${request.approvedDate ? `<p><strong>Ngày duyệt:</strong> ${formatDate(request.approvedDate)}</p>` : ''}
-            `;
-            
-            modal.style.display = 'block';
+        async function handleApproval(id, approved) {
+            try {
+                // Lấy token từ cookie
+                const token = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('token='))
+                    ?.split('=')[1];
+
+                if (!token) {
+                    alert('Không tìm thấy token!');
+                    return;
+                }
+
+                // URL API với tham số động
+                const url = `http://localhost:8080/api/storekeeper/request/view/${id}/approve?approved=${approved}`;
+
+                // Gửi request POST
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                // Kiểm tra kết quả response
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+
+                if (approved === 'true') {
+                    alert('Yêu cầu đã được duyệt thành công!');
+                } else {
+                    alert('Yêu cầu đã bị từ chối thành công!');
+                }
+
+                // Làm mới dữ liệu sau khi phê duyệt
+                fetchRequests();
+            } catch (error) {
+                console.error('Failed to update request:', error);
+                alert('Có lỗi xảy ra khi phê duyệt/từ chối yêu cầu.');
+            }
         }
 
-        function handleApproval(id, status) {
-            const request = mockData.content.find(r => r.id === id);
-            request.status = status;
-            if (status === 'approved') {
-                request.approvedBy = 'currentUser';
-                request.approvedDate = new Date().toISOString();
+
+        function showDetails(id) {
+            const modal = document.getElementById('detailsModal');
+            const content = document.getElementById('modalContent');
+
+            // Fetch request details dynamically if needed
+            const request = window.requests.find(r => r.id === id); // Use cached data
+            content.innerHTML = `
+        <p><strong>ID:</strong> ${request.id}</p>
+        <p><strong>Người yêu cầu:</strong> ${request.requesterName}</p>
+        <p><strong>Loại yêu cầu:</strong> ${request.type}</p>
+        <p><strong>Học kỳ:</strong> ${request.semester}</p>
+        <p><strong>Mục đích:</strong> ${request.purpose}</p>
+        <p><strong>Phòng học:</strong> ${request.classrooms.join(', ')}</p>
+        <div class="material-list">
+            <h3>Danh sách vật tư:</h3>
+            ${request.materials.map(m => `
+                <p>${m.name}: ${m.quantity} ${m.unit}</p>
+            `).join('')}
+        </div>
+       <p><strong>Trạng thái:</strong> <span class="status status-${request.status.toLowerCase()}">${request.status}</span></p>
+        ${
+                request.status.toLowerCase() === 'approved'
+                    ? `
+                    <p><strong>Người duyệt:</strong> ${request.approvedBy}</p>
+                    <p><strong>Ngày duyệt:</strong> ${request.approvedDate}</p>
+                  `
+                    : request.status.toLowerCase() === 'rejected'
+                        ? `
+                    <p><strong>Người từ chối:</strong> ${request.rejectedBy}</p>
+                    <p><strong>Ngày từ chối:</strong> ${request.rejectedDate}</p>
+                  `
+                        : ''
             }
-            renderTable();
+    `;
+
+            modal.style.display = 'block';
         }
 
         // Close modal functionality
         document.querySelector('.close').onclick = function() {
             document.getElementById('detailsModal').style.display = 'none';
-        }
+        };
 
         window.onclick = function(event) {
             const modal = document.getElementById('detailsModal');
             if (event.target === modal) {
                 modal.style.display = 'none';
             }
-        }
+        };
 
-        // Initial render
-        renderTable();
+        // Fetch data on page load
+        fetchRequests();
+
     </script>
 </body>
 </html>

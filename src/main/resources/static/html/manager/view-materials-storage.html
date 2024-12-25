@@ -36,43 +36,54 @@
 </head>
 <body>
 
-    <h1>Danh Sách Vật Tư Có Trong Kho</h1>
-    <table id="inventoryTable">
-        <thead>
-            <tr>
-                <th>Tên Vật Tư</th>
-                <th>Số Lượng</th>
-                <th>Đơn Vị</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Dữ liệu sẽ được chèn vào đây -->
-        </tbody>
-    </table>
+<h1>Danh Sách Vật Tư Có Trong Kho</h1>
+<table id="inventoryTable">
+    <thead>
+    <tr>
+        <th>Tên Vật Tư</th>
+        <th>Số Lượng</th>
+        <th>Đơn Vị</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Dữ liệu sẽ được chèn vào đây -->
+    </tbody>
+</table>
 
-    <script>
-        // Giả lập phản hồi từ server
-        const mockResponse = [
-            { "name": "Whiteboard Marker", "quantity": 30, "unit": "pieces" },
-            { "name": "Projector Bulb", "quantity": 20, "unit": "pieces" },
-            { "name": "Laptop Charger", "quantity": 30, "unit": "pieces" },
-            { "name": "PC", "quantity": 51, "unit": "bộ" }
-        ];
-
-        // Hàm hiển thị dữ liệu lên bảng
-        function displayInventory(data) {
-            const tableBody = document.getElementById('inventoryTable').getElementsByTagName('tbody')[0];
-            data.forEach(item => {
-                const row = tableBody.insertRow();
-                row.insertCell(0).textContent = item.name;
-                row.insertCell(1).textContent = item.quantity;
-                row.insertCell(2).textContent = item.unit;
+<script>
+    // Hàm gọi API và lấy dữ liệu vật tư
+    function fetchInventory() {
+        const token = document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1]; // Lấy token từ cookie
+        fetch('http://localhost:8080/api/manager/control-resource/materials', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,  // Gửi token trong header
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                displayInventory(data); // Hiển thị dữ liệu lên bảng
+            })
+            .catch(error => {
+                console.error('Lỗi khi lấy dữ liệu:', error);
             });
-        }
+    }
 
-        // Gọi hàm để hiển thị dữ liệu
-        displayInventory(mockResponse);
-    </script>
+    // Hàm hiển thị dữ liệu lên bảng
+    function displayInventory(data) {
+        const tableBody = document.getElementById('inventoryTable').getElementsByTagName('tbody')[0];
+        data.forEach(item => {
+            const row = tableBody.insertRow();
+            row.insertCell(0).textContent = item.name;
+            row.insertCell(1).textContent = item.quantity;
+            row.insertCell(2).textContent = item.unit;
+        });
+    }
+
+    // Gọi hàm để lấy và hiển thị dữ liệu khi trang được tải
+    fetchInventory();
+</script>
 
 </body>
 </html>

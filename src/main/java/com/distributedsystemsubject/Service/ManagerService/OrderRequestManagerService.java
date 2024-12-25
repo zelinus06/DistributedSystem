@@ -30,8 +30,6 @@ public class OrderRequestManagerService {
                 order.setApprovedDate(approvedDateString);
             } else {
                 order.setStatus("Rejected");
-                materialOrderRepo.save(order);
-                throw new RuntimeException("Order request rejected");
             }
             materialOrderRepo.save(order);
         }

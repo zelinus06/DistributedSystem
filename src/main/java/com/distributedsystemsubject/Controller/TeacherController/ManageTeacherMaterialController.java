@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/teacher/material")
@@ -30,7 +31,7 @@ public class ManageTeacherMaterialController {
     public ResponseEntity<?> minusMaterials(@RequestBody MaterialConsumeRequest materials) {
         try {
             manageTeacherWarhouseService.consumeMaterials(getRequesterName(), materials);
-            return ResponseEntity.ok("Materials consumed");
+            return ResponseEntity.ok(Map.of("message", "Cập nhật số lượng thành công"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
