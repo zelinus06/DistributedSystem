@@ -9,7 +9,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-image: url('images/background.jpg'); /* Đặt đường dẫn ảnh nền trong thư mục images */
+            background-image: url('../../img/hust-c1-b.jpg'); 
             background-size: cover;
             background-position: center;
         }
@@ -124,105 +124,103 @@
 
     <script>
         // Hàm xem tất cả vật liệu trong kho
-        async function viewAllMaterials() {
-            const statusMessage = document.getElementById("viewStatusMessage");
-            const materialsTable = document.getElementById("allMaterialsTable");
-            const tableBody = materialsTable.querySelector("tbody");
+        // Hàm xem tất cả vật liệu trong kho
+async function viewAllMaterials() {
+    const statusMessage = document.getElementById("viewStatusMessage");
+    const materialsTable = document.getElementById("allMaterialsTable");
+    const tableBody = materialsTable.querySelector("tbody");
 
-            statusMessage.textContent = "Đang tải danh sách vật liệu...";
-            statusMessage.className = "loading";
-            materialsTable.style.display = "none";
-            tableBody.innerHTML = "";
+    statusMessage.textContent = "Đang tải danh sách vật liệu...";
+    statusMessage.className = "loading";
+    materialsTable.style.display = "none";
+    tableBody.innerHTML = "";
 
-            try {
-                const response = await fetch("http://localhost:8080/api/storekeeper/material/view", {
-                    method: "GET"
-                });
+    try {
+        // Mock response
+        const materials = [
+            { name: "Whiteboard Marker", quantity: 30, unit: "pieces" },
+            { name: "Projector Bulb", quantity: 20, unit: "pieces" },
+            { name: "Laptop Charger", quantity: 30, unit: "pieces" },
+            { name: "PC", quantity: 51, unit: "bộ" }
+        ];
 
-                if (!response.ok) {
-                    throw new Error("Không thể lấy dữ liệu từ máy chủ");
-                }
-
-                const materials = await response.json();
-
-                if (materials.length === 0) {
-                    statusMessage.textContent = "Không có vật liệu nào trong kho.";
-                    statusMessage.className = "error";
-                    return;
-                }
-
-                materials.forEach(material => {
-                    const row = `
-                        <tr>
-                            <td>${material.name}</td>
-                            <td>${material.quantity}</td>
-                            <td>${material.unit}</td>
-                        </tr>
-                    `;
-                    tableBody.innerHTML += row;
-                });
-
-                statusMessage.textContent = "";
-                materialsTable.style.display = "table";
-            } catch (error) {
-                console.error("Lỗi:", error);
-                statusMessage.textContent = "Đã xảy ra lỗi khi tải danh sách vật liệu.";
-                statusMessage.className = "error";
-            }
+        if (materials.length === 0) {
+            statusMessage.textContent = "Không có vật liệu nào trong kho.";
+            statusMessage.className = "error";
+            return;
         }
+
+        materials.forEach(material => {
+            const row = `
+                <tr>
+                    <td>${material.name}</td>
+                    <td>${material.quantity}</td>
+                    <td>${material.unit}</td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+
+        statusMessage.textContent = "";
+        materialsTable.style.display = "table";
+    } catch (error) {
+        console.error("Lỗi:", error);
+        statusMessage.textContent = "Đã xảy ra lỗi khi tải danh sách vật liệu.";
+        statusMessage.className = "error";
+    }
+}
+
 
         // Hàm tìm kiếm vật liệu
-        async function searchMaterial() {
-            const statusMessage = document.getElementById("searchStatusMessage");
-            const materialsTable = document.getElementById("searchResultTable");
-            const tableBody = materialsTable.querySelector("tbody");
-            const searchInput = document.getElementById("searchInput").value.trim();
+async function searchMaterial() {
+    const statusMessage = document.getElementById("searchStatusMessage");
+    const materialsTable = document.getElementById("searchResultTable");
+    const tableBody = materialsTable.querySelector("tbody");
+    const searchInput = document.getElementById("searchInput").value.trim();
 
-            if (!searchInput) {
-                statusMessage.textContent = "Vui lòng nhập từ khóa tìm kiếm.";
-                statusMessage.className = "error";
-                return;
-            }
+    if (!searchInput) {
+        statusMessage.textContent = "Vui lòng nhập từ khóa tìm kiếm.";
+        statusMessage.className = "error";
+        return;
+    }
 
-            statusMessage.textContent = "Đang tìm kiếm...";
-            statusMessage.className = "loading";
-            materialsTable.style.display = "none";
-            tableBody.innerHTML = "";
+    statusMessage.textContent = "Đang tìm kiếm...";
+    statusMessage.className = "loading";
+    materialsTable.style.display = "none";
+    tableBody.innerHTML = "";
 
-            try {
-                const response = await fetch(`http://localhost:8080/api/storekeeper/material/search?materialName=${encodeURIComponent(searchInput)}`, {
-                    method: "GET"
-                });
+    try {
+        // Mock response
+        const mockResponse = {
+            name: "Laptop Charger",
+            quantity: 30,
+            unit: "pieces"
+        };
 
-                if (!response.ok) {
-                    throw new Error("Không thể lấy dữ liệu từ máy chủ");
-                }
+        // Kiểm tra từ khóa tìm kiếm khớp với tên vật liệu trong mock response
+        if (mockResponse.name.toLowerCase().includes(searchInput.toLowerCase())) {
+            const row = `
+                <tr>
+                    <td>${mockResponse.name}</td>
+                    <td>${mockResponse.quantity}</td>
+                    <td>${mockResponse.unit}</td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
 
-                const material = await response.json();
-
-                if (!material || !material.name) {
-                    statusMessage.textContent = "Không tìm thấy vật liệu.";
-                    statusMessage.className = "error";
-                    return;
-                }
-
-                const row = `
-                    <tr>
-                        <td>${material.name}</td>
-                        <td>${material.quantity}</td>
-                        <td>${material.unit}</td>
-                    </tr>
-                `;
-                tableBody.innerHTML += row;
-
-                statusMessage.textContent = "";
-                materialsTable.style.display = "table";
-            } catch (error) {
-                console.error("Lỗi:", error);
-                statusMessage.textContent = "Đã xảy ra lỗi khi tìm kiếm vật liệu.";
-                statusMessage.className = "error";
-            }
+            statusMessage.textContent = "";
+            materialsTable.style.display = "table";
+        } else {
+            statusMessage.textContent = "Không tìm thấy vật liệu.";
+            statusMessage.className = "error";
         }
+    } catch (error) {
+        console.error("Lỗi:", error);
+        statusMessage.textContent = "Đã xảy ra lỗi khi tìm kiếm vật liệu.";
+        statusMessage.className = "error";
+    }
+}
+
     </script>
 </body>
 </html>
