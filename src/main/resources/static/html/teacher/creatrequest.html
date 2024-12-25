@@ -8,6 +8,25 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('../../img/hust-c1-b.jpg'); 
+            background-size: cover;
+            background-position: center;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            width: 100%;
+            max-width: 600px;
+        }
+        h1 {
+            text-align: center;
         }
         label {
             font-weight: bold;
@@ -24,18 +43,38 @@
             border: 1px solid #ddd;
             padding: 10px;
             margin: 10px 0;
+            border-radius: 5px;
         }
         button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
+            font-size: 14px;
+            padding: 6px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
         }
         button:hover {
             background-color: #45a049;
         }
         .remove-btn {
-            background-color: red;
+            background-color: #f44336;
+            color: white;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+        .remove-btn:hover {
+            background-color: #d32f2f;
+        }
+        .small-btn {
+            font-size: 12px;
+            padding: 6px 8px;
+            border-radius: 5px;
+            width: auto;
+        }
+        .button-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
         }
         .modal {
             display: none;
@@ -61,40 +100,44 @@
             text-align: center;
         }
         .close-btn {
-            background-color: red;
+            background-color: #f44336;
             color: white;
-            border: none;
-            padding: 8px 16px;
-            cursor: pointer;
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 5px;
         }
         .close-btn:hover {
-            background-color: darkred;
+            background-color: #d32f2f;
         }
     </style>
 </head>
 <body>
-<h1>Gửi Yêu Cầu Vật Tư</h1>
+<div class="container">
+    <h1>Gửi Yêu Cầu Vật Tư</h1>
 
-<!-- Input học kỳ và mục đích -->
-<label for="semester">Học Kỳ:</label>
-<input type="text" id="semester" placeholder="Nhập học kỳ">
+    <!-- Input học kỳ và mục đích -->
+    <label for="semester">Học Kỳ:</label>
+    <input type="text" id="semester" placeholder="Nhập học kỳ">
 
-<label for="purpose">Mục Đích:</label>
-<input type="text" id="purpose" placeholder="Nhập mục đích">
+    <label for="purpose">Mục Đích:</label>
+    <input type="text" id="purpose" placeholder="Nhập mục đích">
 
-<!-- Input phòng học -->
-<label for="classrooms">Phòng Học (cách nhau dấu phẩy):</label>
-<input type="text" id="classrooms" placeholder="Nhập phòng học">
+    <!-- Input phòng học -->
+    <label for="classrooms">Phòng Học (cách nhau dấu phẩy):</label>
+    <input type="text" id="classrooms" placeholder="Nhập phòng học">
 
-<!-- Vật tư -->
-<h3>Danh Sách Vật Tư</h3>
-<div id="materialsContainer"></div>
-<button type="button" onclick="addMaterial()">+ Thêm Vật Tư</button>
+    <!-- Vật tư -->
+    <h3>Danh Sách Vật Tư</h3>
+    <div id="materialsContainer"></div>
 
-<!-- Submit form -->
-<button type="button" onclick="sendMaterialRequest()">Gửi Yêu Cầu</button>
+    <!-- Button row -->
+    <div class="button-row">
+        <button type="button" class="small-btn" onclick="addMaterial()">+ Thêm Vật Tư</button>
+        <button type="button" class="small-btn" onclick="sendMaterialRequest()">Gửi Yêu Cầu</button>
+    </div>
 
-<div id="responseMessage"></div>
+    <div id="responseMessage"></div>
+</div>
 
 <!-- Modal for success notification -->
 <div id="successModal" class="modal">
