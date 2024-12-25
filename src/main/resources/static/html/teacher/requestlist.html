@@ -38,44 +38,74 @@
             </tr>
         </thead>
         <tbody id="request-table-body">
-            <!-- Dữ liệu sẽ được thêm vào đây -->
+        <tr>
+            <td colspan="8">Đang tải dữ liệu...</td>
+        </tr>
         </tbody>
     </table>
 
     <script>
-        // Hàm fetch data từ API và render ra bảng
         async function fetchAndRenderRequests() {
+            const tableBody = document.getElementById("request-table-body");
+
             try {
-                const response = await fetch("http://localhost:8080/api/teacher/request/view");
+                // Lấy token từ cookie
+                const token = document.cookie
+                    .split("; ")
+                    .find(row => row.startsWith("token="))
+                    ?.split("=")[1];
+
+                if (!token) {
+                    tableBody.innerHTML = `<tr><td colspan="8">Không tìm thấy token xác thực.</td></tr>`;
+                    return;
+                }
+
+                // Gọi API với token trong header
+                const response = await fetch("http://localhost:8080/api/teacher/request/view", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
                 const data = await response.json();
 
-                const tableBody = document.getElementById("request-table-body");
-                tableBody.innerHTML = ""; // Xóa dữ liệu cũ
+                if (!data.content || data.content.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="8">Không có yêu cầu nào.</td></tr>`;
+                    return;
+                }
 
-                // Lặp qua từng request và render ra bảng
+                tableBody.innerHTML = ""; // Xóa thông báo "Đang tải dữ liệu"
                 data.content.forEach((request, index) => {
                     const row = document.createElement("tr");
-                    const materials = request.materials.map(item => `${item.name}: ${item.quantity} ${item.unit}`).join("<br>");
-                    
+                    const materials = request.materials
+                        .map(item => `${item.name}: ${item.quantity} ${item.unit}`)
+                        .join("<br>");
                     row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${request.requesterName}</td>
-                        <td>${materials}</td>
-                        <td>${request.materials.reduce((sum, item) => sum + item.quantity, 0)} pieces</td>
-                        <td>${request.status}</td>
-                        <td>${request.date}</td>
-                        <td>${request.approvedDate || "--"}</td>
-                        <td>${request.approvedBy || "--"}</td>
-                    `;
+                    <td>${index + 1}</td>
+                    <td>${request.requesterName}</td>
+                    <td>${materials}</td>
+                    <td>${request.materials.reduce((sum, item) => sum + item.quantity, 0)} pieces</td>
+                    <td>${request.status}</td>
+                    <td>${request.date}</td>
+                    <td>${request.approvedDate || "--"}</td>
+                    <td>${request.approvedBy || "--"}</td>
+                `;
                     tableBody.appendChild(row);
                 });
             } catch (error) {
                 console.error("Lỗi khi fetch dữ liệu:", error);
+                tableBody.innerHTML = `<tr><td colspan="8">Lỗi khi tải dữ liệu.</td></tr>`;
             }
         }
 
-        // Gọi hàm fetchAndRenderRequests khi trang tải
         fetchAndRenderRequests();
     </script>
+
 </body>
 </html>

@@ -68,49 +68,61 @@
             cursor: pointer;
         }
         .close-btn:hover {
-            background-color: red;
+            background-color: darkred;
         }
     </style>
 </head>
 <body>
-    <h1>Gửi Yêu Cầu Vật Tư</h1>
+<h1>Gửi Yêu Cầu Vật Tư</h1>
 
-    <!-- Input học kỳ và mục đích -->
-    <label for="semester">Học Kỳ:</label>
-    <input type="text" id="semester" placeholder="Nhập học kỳ">
+<!-- Input học kỳ và mục đích -->
+<label for="semester">Học Kỳ:</label>
+<input type="text" id="semester" placeholder="Nhập học kỳ">
 
-    <label for="purpose">Mục Đích:</label>
-    <input type="text" id="purpose" placeholder="Nhập mục đích">
+<label for="purpose">Mục Đích:</label>
+<input type="text" id="purpose" placeholder="Nhập mục đích">
 
-    <!-- Input phòng học -->
-    <label for="classrooms">Phòng Học (cách nhau dấu phẩy):</label>
-    <input type="text" id="classrooms" placeholder="Nhập phòng học">
+<!-- Input phòng học -->
+<label for="classrooms">Phòng Học (cách nhau dấu phẩy):</label>
+<input type="text" id="classrooms" placeholder="Nhập phòng học">
 
-    <!-- Vật tư -->
-    <h3>Danh Sách Vật Tư</h3>
-    <div id="materialsContainer"></div>
-    <button type="button" onclick="addMaterial()">+ Thêm Vật Tư</button>
+<!-- Vật tư -->
+<h3>Danh Sách Vật Tư</h3>
+<div id="materialsContainer"></div>
+<button type="button" onclick="addMaterial()">+ Thêm Vật Tư</button>
 
-    <!-- Submit form -->
-    <button type="button" onclick="sendMaterialRequest()">Gửi Yêu Cầu</button>
+<!-- Submit form -->
+<button type="button" onclick="sendMaterialRequest()">Gửi Yêu Cầu</button>
 
-    <div id="responseMessage"></div>
+<div id="responseMessage"></div>
 
-    <!-- Modal for success notification -->
-    <div id="successModal" class="modal">
-        <div class="modal-content">
-            <h2>Gửi Thành Công!</h2>
-            <button class="close-btn" onclick="closeModal()">Đóng</button>
-        </div>
+<!-- Modal for success notification -->
+<div id="successModal" class="modal">
+    <div class="modal-content">
+        <h2>Gửi Thành Công!</h2>
+        <button class="close-btn" onclick="closeModal()">Đóng</button>
     </div>
+</div>
 
-    <script>
-        // Thêm vật tư vào danh sách
-        function addMaterial() {
-            const container = document.getElementById("materialsContainer");
-            const materialEntry = document.createElement("div");
-            materialEntry.classList.add("material-entry");
-            materialEntry.innerHTML = `
+<script>
+    // Hàm lấy token từ cookie
+    function getTokenFromCookie() {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [key, value] = cookie.trim().split('=');
+            if (key === 'token') {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    // Thêm vật tư vào danh sách
+    function addMaterial() {
+        const container = document.getElementById("materialsContainer");
+        const materialEntry = document.createElement("div");
+        materialEntry.classList.add("material-entry");
+        materialEntry.innerHTML = `
                 <label>Tên Vật Tư:</label>
                 <input type="text" class="material-name" placeholder="Nhập tên vật tư">
                 <label>Số Lượng:</label>
@@ -119,84 +131,90 @@
                 <input type="text" class="material-unit" placeholder="Nhập đơn vị">
                 <button type="button" class="remove-btn" onclick="removeMaterial(this)">Xóa</button>
             `;
-            container.appendChild(materialEntry);
-        }
+        container.appendChild(materialEntry);
+    }
 
-        // Xóa vật tư
-        function removeMaterial(button) {
-            button.parentElement.remove();
-        }
+    // Xóa vật tư
+    function removeMaterial(button) {
+        button.parentElement.remove();
+    }
 
-        // Hiển thị modal
-        function showModal() {
-            const modal = document.getElementById("successModal");
-            modal.style.display = "flex";
-        }
+    // Hiển thị modal
+    function showModal() {
+        const modal = document.getElementById("successModal");
+        modal.style.display = "flex";
+    }
 
-        // Đóng modal
-        function closeModal() {
-            const modal = document.getElementById("successModal");
-            modal.style.display = "none";
-        }
-        
-        // Gửi yêu cầu vật tư
-        async function sendMaterialRequest() {
-            const semester = document.getElementById("semester").value;
-            const purpose = document.getElementById("purpose").value;
-            const classroomsInput = document.getElementById("classrooms").value;
-        
-            // Lấy danh sách vật tư
-            const materials = [];
-            document.querySelectorAll(".material-entry").forEach(entry => {
-                const name = entry.querySelector(".material-name").value.trim();
-                const quantity = entry.querySelector(".material-quantity").value.trim();
-                const unit = entry.querySelector(".material-unit").value.trim();
-                if (name && quantity && unit) {
-                    materials.push({
-                        name: name,
-                        quantity: parseInt(quantity),
-                        unit: unit
-                    });
-                }
-            });
-        
-            // Kiểm tra dữ liệu đầu vào
-            if (!semester || !purpose || materials.length === 0) {
-                document.getElementById("responseMessage").innerHTML = "<p style='color:red;'>Vui lòng điền đầy đủ thông tin!</p>";
-                return;
-            }
-        
-            const payload = {
-                materials: materials,
-                classrooms: classroomsInput.split(",").map(item => item.trim()),
-                semester: semester,
-                purpose: purpose,
-                date: new Date().toISOString() // Lấy thời gian hiện tại
-            };
+    // Đóng modal
+    function closeModal() {
+        const modal = document.getElementById("successModal");
+        modal.style.display = "none";
+    }
 
-            try {
-                const response = await fetch("http://localhost:8080/api/teacher/request/create", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
+    // Gửi yêu cầu vật tư
+    async function sendMaterialRequest() {
+        const semester = document.getElementById("semester").value;
+        const purpose = document.getElementById("purpose").value;
+        const classroomsInput = document.getElementById("classrooms").value;
+
+        // Lấy danh sách vật tư
+        const materials = [];
+        document.querySelectorAll(".material-entry").forEach(entry => {
+            const name = entry.querySelector(".material-name").value.trim();
+            const quantity = entry.querySelector(".material-quantity").value.trim();
+            const unit = entry.querySelector(".material-unit").value.trim();
+            if (name && quantity && unit) {
+                materials.push({
+                    name: name,
+                    quantity: parseInt(quantity),
+                    unit: unit
                 });
-        
-                if (response.ok) {
-                    // Hiển thị modal thành công
-                    showModal();
-                } else {
-                    // Xử lý lỗi trả về từ server
-                    const errorData = await response.text();
-                    alert(`Lỗi khi cập nhật: ${errorData}`);
-                }
-            } catch (error) {
-                // Xử lý lỗi kết nối
-                console.error("Lỗi:", error);
-                alert("Không thể kết nối đến server.");
             }
+        });
+
+        // Kiểm tra dữ liệu đầu vào
+        if (!semester || !purpose || materials.length === 0) {
+            document.getElementById("responseMessage").innerHTML = "<p style='color:red;'>Vui lòng điền đầy đủ thông tin!</p>";
+            return;
         }
-    </script>
+
+        const payload = {
+            materials: materials,
+            classrooms: classroomsInput.split(",").map(item => item.trim()),
+            semester: semester,
+            purpose: purpose,
+        };
+
+        const token = getTokenFromCookie();
+        if (!token) {
+            alert("Không tìm thấy token đăng nhập.");
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:8080/api/teacher/request/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                // Hiển thị modal thành công
+                showModal();
+            } else {
+                // Xử lý lỗi trả về từ server
+                const errorData = await response.text();
+                alert(`Lỗi khi cập nhật: ${errorData}`);
+            }
+        } catch (error) {
+            // Xử lý lỗi kết nối
+            console.error("Lỗi:", error);
+            alert("Không thể kết nối đến server.");
+        }
+    }
+</script>
 </body>
 </html>
