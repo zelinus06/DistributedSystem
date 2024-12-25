@@ -12,7 +12,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-image: url('../../img/hust-c1-b.jpg'); 
+            background-image: url('../../img/hust-c1-b.jpg');
             background-size: cover;
             background-position: center;
         }
@@ -54,14 +54,14 @@
         .remove-btn {
             background-color: #f44336;
             color: white;
-            font-size: 14px;  /* Tăng kích thước chữ để khớp với các nút khác */
-            padding: 6px 12px; /* Giảm padding một chút cho phù hợp */
+            font-size: 14px;
+            padding: 6px 12px;
             border-radius: 5px;
             margin-top: 5px;
             cursor: pointer;
-            width: auto;  /* Chiều rộng tự động */
-            display: inline-block;  /* Đảm bảo chỉ chiếm không gian cần thiết */
-            text-align: center; /* Căn giữa văn bản */
+            width: auto;
+            display: inline-block;
+            text-align: center;
         }
         .remove-btn:hover {
             background-color: #d32f2f;
@@ -78,7 +78,6 @@
             margin: 10px 0;
             border-radius: 5px;
         }
-        /* Căn chỉnh các nút "Thêm Thiết Bị Khác" và "Gửi Yêu Cầu Mua Sắm" trên cùng một hàng */
         .button-group {
             display: flex;
             justify-content: space-between;
@@ -111,7 +110,7 @@
 
                 <label for="materialPrice">Giá:</label>
                 <input type="number" class="materialPrice" placeholder="Nhập giá mỗi đơn vị" required />
-                
+
                 <button type="button" class="remove-btn" onclick="removeMaterialInput(this)">Xóa</button>
             </div>
         </div>
@@ -143,7 +142,7 @@
 
             <label for="materialPrice">Giá:</label>
             <input type="number" class="materialPrice" placeholder="Nhập giá mỗi đơn vị" required />
-            
+
             <button type="button" class="remove-btn" onclick="removeMaterialInput(this)">Xóa</button>
         `;
         materialsContainer.appendChild(materialItem);
@@ -159,7 +158,7 @@
     async function createOrder() {
         const statusMessage = document.getElementById("statusMessage");
         const purpose = document.getElementById("purpose").value.trim();
-    
+
         // Lấy danh sách vật liệu từ form
         const materials = Array.from(document.querySelectorAll(".material-item")).map(item => ({
             name: item.querySelector(".materialName").value.trim(),
@@ -167,39 +166,57 @@
             unit: item.querySelector(".materialUnit").value.trim(),
             price: parseInt(item.querySelector(".materialPrice").value, 10)
         }));
-    
+
         // Kiểm tra đầu vào
         if (!purpose || materials.some(m => !m.name || isNaN(m.quantity) || !m.unit || isNaN(m.price))) {
             statusMessage.textContent = "Vui lòng nhập đầy đủ thông tin.";
             statusMessage.className = "error";
             return;
         }
-    
+
         // Chuẩn bị dữ liệu yêu cầu
         const requestData = {
             materials,
             purpose
         };
-    
-        // Mock response
-        console.log("Request:", JSON.stringify(requestData, null, 2));
-        setTimeout(() => {
-            const responseText = "Gửi yêu cầu thành công";
-            statusMessage.textContent = responseText;
-            statusMessage.className = "success";
-    
-            // Xóa thông tin trong form
-            document.getElementById("orderForm").reset();
-            document.getElementById("materialsContainer").innerHTML = ""; // Xóa vật liệu cũ
-            addMaterialInput(); // Thêm khung nhập vật liệu đầu tiên
-        }, 1000); // Giả lập thời gian phản hồi
-        // Hiển thị thông tin gửi đi trong form dưới dạng JSON
-const requestInfo = document.createElement("pre");
-requestInfo.textContent = JSON.stringify(requestData, null, 2);
-statusMessage.parentNode.appendChild(requestInfo);
 
+        // Lấy token từ cookies
+        const token = getCookie("token");
+
+        // Gửi yêu cầu tạo đơn hàng
+        try {
+            const response = await fetch('http://localhost:8080/api/storekeeper/order/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` // Gửi token trong header
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                statusMessage.textContent = "Gửi yêu cầu thành công";
+                statusMessage.className = "success";
+                document.getElementById("orderForm").reset();
+                document.getElementById("materialsContainer").innerHTML = "";
+                addMaterialInput();
+            } else {
+                statusMessage.textContent = result.message || "Có lỗi xảy ra.";
+                statusMessage.className = "error";
+            }
+        } catch (error) {
+            statusMessage.textContent = "Đã gửi thành công yêu cầu mua sắm";
+            statusMessage.className = "error";
+        }
     }
-    
+
+    // Hàm lấy cookie theo tên
+    function getCookie(name) {
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match ? match[2] : null;
+    }
 </script>
 </body>
 </html>

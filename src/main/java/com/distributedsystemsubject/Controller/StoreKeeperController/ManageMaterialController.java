@@ -32,6 +32,7 @@ public class ManageMaterialController {
     public ResponseEntity<?> searchMaterials(@RequestParam String materialName) {
         try {
             Materials results = manageWarhouseService.searchMaterialsByName(materialName);
+            System.out.println("kết quả là: " + results);
             return ResponseEntity.ok(results);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Material not found: " + materialName);

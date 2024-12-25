@@ -13,7 +13,7 @@ public class OrderRequestAccountantService {
     private MaterialOrderRepo materialOrderRepo;
 
     public List<MaterialOrder> getOrderRequest() {
-       List<MaterialOrder> list = materialOrderRepo.findAllByStatus("Approved");
+       List<MaterialOrder> list = materialOrderRepo.findAllByStatus("approved");
        if (!list.isEmpty()) {
            return list;
        } else {

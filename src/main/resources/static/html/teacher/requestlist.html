@@ -39,6 +39,7 @@
                 <th>Trạng Thái</th>
                 <th>Ngày Tạo</th>
                 <th>Người Phê Duyệt</th>
+                <th>Người Từ Chối</th>
             </tr>
         </thead>
         <tbody id="request-table-body">
@@ -95,15 +96,16 @@
                         .map(item => `${item.name}: ${item.quantity} ${item.unit}`)
                         .join("<br>");
                     row.innerHTML = `
-                        <td>${request.id}</td>
-                        <td>${index + 1}</td>
-                        <td>${request.requesterName}</td>
-                        <td>${materials}</td>
-                        <td>${request.materials.reduce((sum, item) => sum + item.quantity, 0)} pieces</td>
-                        <td>${request.status}</td>
-                        <td>${request.date}</td>
-                        <td>${request.approvedBy || "--"}</td>
-                    `;
+                    <td>${request.id}</td>
+                    <td>${index + 1}</td>
+                    <td>${request.requesterName}</td>
+                    <td>${materials}</td>
+                    <td>${request.materials.reduce((sum, item) => sum + item.quantity, 0)} pieces</td>
+                    <td>${request.status}</td>
+                    <td>${request.date}</td>
+                    <td>${request.approvedBy || "--"}</td>
+                    <td>${request.rejectedBy || "--"}</td>
+                `;
                     tableBody.appendChild(row);
                 });
             } catch (error) {
@@ -111,7 +113,6 @@
                 tableBody.innerHTML = `<tr><td colspan="8">Lỗi khi tải dữ liệu.</td></tr>`;
             }
         }
-        
         fetchAndRenderRequests();
         
     </script>
