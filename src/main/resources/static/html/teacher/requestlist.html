@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh sách Yêu cầu Vật tư</title>
     <style>
+        h1 {
+            text-align: center;
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
@@ -48,39 +52,43 @@
     <script>
         async function fetchAndRenderRequests() {
             const tableBody = document.getElementById("request-table-body");
-
+        
             try {
-                // Lấy token từ cookie
-                const token = document.cookie
-                    .split("; ")
-                    .find(row => row.startsWith("token="))
-                    ?.split("=")[1];
-
-                if (!token) {
-                    tableBody.innerHTML = `<tr><td colspan="8">Không tìm thấy token xác thực.</td></tr>`;
-                    return;
-                }
-
-                // Gọi API với token trong header
-                const response = await fetch("http://localhost:8080/api/teacher/request/view", {
-                    method: "GET",
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json"
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-
+                // Mock response thay thế API thực tế
+                const mockResponse = {
+                    content: [
+                        {
+                            id: "6761497d1a1ef936f040f4b7",
+                            requesterName: "thaiteacher",
+                            materials: [
+                                { name: "Whiteboard Marker", quantity: 10, unit: "pieces" },
+                                { name: "Projector Bulb", quantity: 5, unit: "pieces" }
+                            ],
+                            date: "2024-12-17 09:50:53",
+                            status: "approved",
+                            approvedBy: "thaistorekeeper"
+                        },
+                        {
+                            id: "676149911a1ef936f040f4b8",
+                            requesterName: "thaiteacher",
+                            materials: [
+                                { name: "Whiteboard Marker", quantity: 7, unit: "pieces" },
+                                { name: "Projector Bulb", quantity: 7, unit: "pieces" }
+                            ],
+                            date: "2024-12-17 09:51:13",
+                            status: "pending",
+                            approvedBy: null
+                        }
+                    ]
+                };
+        
+                const data = mockResponse; // Gán trực tiếp mock response
+        
                 if (!data.content || data.content.length === 0) {
                     tableBody.innerHTML = `<tr><td colspan="8">Không có yêu cầu nào.</td></tr>`;
                     return;
                 }
-
+        
                 tableBody.innerHTML = ""; // Xóa thông báo "Đang tải dữ liệu"
                 data.content.forEach((request, index) => {
                     const row = document.createElement("tr");
@@ -106,6 +114,7 @@
             }
         }
         fetchAndRenderRequests();
+        
     </script>
 </body>
 </html>

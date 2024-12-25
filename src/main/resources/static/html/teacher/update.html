@@ -8,6 +8,21 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            display: flex;
+            justify-content: center;
+            background-image: url('../../img/hust-c1-b.jpg'); 
+            background-size: cover;
+            background-position: center;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            width: 600px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+        }
+        h1 {
+            text-align: center;
         }
         label {
             font-weight: bold;
@@ -73,33 +88,35 @@
     </style>
 </head>
 <body>
-    <h1>Cập Nhật Yêu Cầu Vật Tư</h1>
+    <div class="container">
+        <h1>Cập Nhật Yêu Cầu Vật Tư</h1>
 
-    <label for="requestId">Mã Yêu Cầu:</label>
-    <input type="text" id="requestId" placeholder="Nhập mã yêu cầu (ID)">
+        <label for="requestId">Mã Yêu Cầu:</label>
+        <input type="text" id="requestId" placeholder="Nhập mã yêu cầu (ID)">
 
-    <label for="semester">Học Kỳ:</label>
-    <input type="text" id="semester" placeholder="Nhập học kỳ">
+        <label for="semester">Học Kỳ:</label>
+        <input type="text" id="semester" placeholder="Nhập học kỳ">
 
-    <label for="purpose">Mục Đích:</label>
-    <input type="text" id="purpose" placeholder="Nhập mục đích">
+        <label for="purpose">Mục Đích:</label>
+        <input type="text" id="purpose" placeholder="Nhập mục đích">
 
-    <label for="classrooms">Phòng Học (cách nhau dấu phẩy):</label>
-    <input type="text" id="classrooms" placeholder="Nhập phòng học">
+        <label for="classrooms">Phòng Học (cách nhau dấu phẩy):</label>
+        <input type="text" id="classrooms" placeholder="Nhập phòng học">
 
-    <!-- Vật tư -->
-    <h3>Danh Sách Vật Tư</h3>
-    <div id="materialsContainer"></div>
-    <button type="button" onclick="addMaterial()">+ Thêm Vật Tư</button>
+        <!-- Vật tư -->
+        <h3>Danh Sách Vật Tư</h3>
+        <div id="materialsContainer"></div>
+        <button type="button" onclick="addMaterial()">+ Thêm Vật Tư</button>
 
-    <!-- Nút Cập Nhật -->
-    <button type="button" onclick="updateRequest()">Cập Nhật Yêu Cầu</button>
+        <!-- Nút Cập Nhật -->
+        <button type="button" onclick="updateRequest()">Cập Nhật Yêu Cầu</button>
 
-    <!-- Modal for success notification -->
-    <div id="successModal" class="modal">
-        <div class="modal-content">
-            <h2>Cập Nhật Thành Công!</h2>
-            <button class="close-btn" onclick="closeModal()">Đóng</button>
+        <!-- Modal for success notification -->
+        <div id="successModal" class="modal">
+            <div class="modal-content">
+                <h2>Cập Nhật Thành Công!</h2>
+                <button class="close-btn" onclick="closeModal()">Đóng</button>
+            </div>
         </div>
     </div>
 
