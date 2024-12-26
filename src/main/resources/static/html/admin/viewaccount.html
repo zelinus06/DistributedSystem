@@ -35,109 +35,79 @@
     </style>
 </head>
 <body>
-    <h1>Danh sách tài khoản</h1>
-    <button onclick="extractData()">Trích xuất thông tin</button>
-    
-    <div id="tableContainer" style="display: none;">
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>Role</th>
-                    <th>Enabled</th>
-                    <th>Authorities</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                <!-- Dữ liệu sẽ được thêm vào đây -->
-            </tbody>
-        </table>
-    </div>
+<h1>Danh sách tài khoản</h1>
+<button onclick="fetchAccounts()">Trích xuất thông tin</button>
 
-    <script>
-        const data = [
-            {
-                "id": "6725fca7b593e045ed87af7a",
-                "username": "thaiteacher",
-                "role": "TEACHER",
-                "enabled": true,
-                "authorities": [
-                    {"authority": "TEACHER"}
-                ]
-            },
-            {
-                "id": "67591bd7bc7dde4d6bf1750f",
-                "username": "thaistorekeeper",
-                "role": "STOREKEEPER",
-                "enabled": true,
-                "authorities": [
-                    {"authority": "STOREKEEPER"}
-                ]
-            },
-            {
-                "id": "67623cb529d5c8a243c68fa3",
-                "username": "thaimanager",
-                "role": "MANAGER",
-                "enabled": true,
-                "authorities": [
-                    {"authority": "MANAGER"}
-                ]
-            },
-            {
-                "id": "67623cc229d5c8a243c68fa4",
-                "username": "thaiaccountant",
-                "role": "ACCOUNTANT",
-                "enabled": true,
-                "authorities": [
-                    {"authority": "ACCOUNTANT"}
-                ]
-            },
-            {
-                "id": "6762a7e0dc0402af19852c69",
-                "username": "thaiadmin",
-                "role": "ADMIN",
-                "enabled": true,
-                "authorities": [
-                    {"authority": "ADMIN"}
-                ]
-            },
-            {
-                "id": "6762a99e36acef5a7fd3d0b6",
-                "username": "johndoe",
-                "role": "TEACHER",
-                "enabled": true,
-                "authorities": [
-                    {"authority": "TEACHER"}
-                ]
+<div id="tableContainer" style="display: none;">
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Enabled</th>
+            <th>Authorities</th>
+        </tr>
+        </thead>
+        <tbody id="tableBody">
+        <!-- Dữ liệu sẽ được thêm vào đây -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    async function fetchAccounts() {
+        try {
+            // Lấy token từ cookie
+            const token = getCookie('token');
+            if (!token) {
+                alert('Token không tồn tại!');
+                return;
             }
-        ];
 
-        function extractData() {
+            // Gọi API
+            const response = await fetch('http://localhost:8080/api/admin/view', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Lỗi API: ${response.status} ${response.statusText}`);
+            }
+
+            // Xử lý dữ liệu trả về
+            const data = await response.json();
+
             // Hiển thị bảng
             document.getElementById('tableContainer').style.display = 'block';
-
-            // Lấy phần tử tbody của bảng
             const tableBody = document.getElementById('tableBody');
             tableBody.innerHTML = ''; // Xóa dữ liệu cũ nếu có
 
             // Thêm dữ liệu vào bảng
             data.forEach(account => {
                 const row = document.createElement('tr');
-
-                // Tạo các ô cho mỗi tài khoản
                 row.innerHTML = `
-                    <td>${account.id}</td>
-                    <td>${account.username}</td>
-                    <td>${account.role}</td>
-                    <td>${account.enabled}</td>
-                    <td>${account.authorities.map(auth => auth.authority).join(', ')}</td>
-                `;
-
-                // Thêm dòng vào bảng
+                        <td>${account.id}</td>
+                        <td>${account.username}</td>
+                        <td>${account.role}</td>
+                        <td>${account.enabled}</td>
+                        <td>${account.authorities.map(auth => auth.authority).join(', ')}</td>
+                    `;
                 tableBody.appendChild(row);
             });
+        } catch (error) {
+            console.error('Lỗi khi gọi API:', error);
+            alert('Không thể tải dữ liệu.');
         }
-    </script>
+    }
+</script>
 </body>
 </html>

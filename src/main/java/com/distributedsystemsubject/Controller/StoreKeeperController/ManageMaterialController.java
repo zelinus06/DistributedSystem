@@ -19,6 +19,8 @@ public class ManageMaterialController {
 
     @PostMapping("/add")
     public ResponseEntity<String> addMaterial(@RequestBody MaterialAddingRequest materialAddingRequest) {
+        materialAddingRequest.setId("67613d7bd6d5e23a7d90a609");
+        materialAddingRequest.setName("khovattu");
         manageWarhouseService.addMaterials(materialAddingRequest);
         return ResponseEntity.ok("Material added");
     }

@@ -115,9 +115,6 @@
         <label for="purpose">Mục Đích:</label>
         <input type="text" id="purpose" placeholder="Nhập mục đích">
 
-        <label for="source">Nguồn Vật Tư:</label>
-        <input type="text" id="source" placeholder="Nhập nguồn">
-
         <!-- Vật tư -->
        
         <div id="materialsContainer"></div>
@@ -179,7 +176,6 @@
             const classroomsInput = document.getElementById("classrooms").value.trim();
             const semester = document.getElementById("semester").value.trim();
             const purpose = document.getElementById("purpose").value.trim();
-            const source = document.getElementById("source").value.trim();
         
             // Lấy danh sách vật tư
             const materials = [];
@@ -189,7 +185,7 @@
                 const unit = entry.querySelector(".material-unit").value.trim();
                 if (materialName && quantity && unit) {
                     materials.push({
-                        materialName: materialName,
+                        name: materialName,
                         quantity: parseInt(quantity),
                         unit: unit
                     });
@@ -197,7 +193,7 @@
             });
         
             // Kiểm tra đầu vào
-            if (!requestId || !teacherName || !classroomsInput || !semester || !purpose || !source || materials.length === 0) {
+            if (!requestId || !teacherName || !classroomsInput || !semester || !purpose || materials.length === 0) {
                 alert("Vui lòng điền đầy đủ thông tin!");
                 return;
             }
@@ -209,28 +205,36 @@
                 classrooms: classroomsInput.split(",").map(item => item.trim()),
                 semester: semester,
                 materials: materials,
-                purpose: purpose,
-                source: source
+                purpose: purpose
             };
-        
+
             // In payload vào console
             console.log("Payload gửi đi:", payload);
+
+            const token = document.cookie
+                .split("; ")
+                .find(row => row.startsWith("token="))
+                ?.split("=")[1];
+
+            if (!token) {
+                alert("Token không tồn tại, vui lòng đăng nhập lại.");
+                return;
+            }
         
             try {
                 // Gửi request
                 const response = await fetch("http://localhost:8080/api/storekeeper/provide/create", {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
                     },
                     body: JSON.stringify(payload)
                 });
         
                 // Kiểm tra phản hồi
                 if (response.ok) {
-                    const responseData = await response.json();
-                    console.log("Phản hồi từ server:", responseData); // In ra phản hồi JSON
-                    alert("Gửi thành công với mã phản hồi: 200");
+                    console.log("Phản hồi từ server:", response); // In ra phản hồi JSON
                     showModal(); // Hiển thị modal
                 } else {
                     const errorData = await response.text();

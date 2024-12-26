@@ -43,6 +43,17 @@
         .status-approved {
             color: green;
         }
+        .pay-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .pay-button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
@@ -60,6 +71,7 @@
             <th>Trạng Thái</th>
             <th>Người Phê Duyệt</th>
             <th>Ngày Phê Duyệt</th>
+            <th>Xác Nhận Chi Trả</th>
         </tr>
         </thead>
         <tbody id="approvedOrderTableBody">
@@ -73,7 +85,15 @@
         const tableBody = document.getElementById("approvedOrderTableBody");
 
         // Lấy token từ cookies
-        const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*=\s*([^;]*).*$)|^.*$/, "$1");
+        const token = document.cookie
+            .split("; ")
+            .find(row => row.startsWith("token="))
+            ?.split("=")[1];
+
+        if (!token) {
+            alert("Token không tồn tại, vui lòng đăng nhập lại.");
+            return;
+        }
 
         try {
             // Gửi yêu cầu GET đến API với token trong header
@@ -84,14 +104,12 @@
                 }
             });
 
-            // Kiểm tra mã trạng thái HTTP
             if (!response.ok) {
                 throw new Error('Có lỗi xảy ra khi gọi API');
             }
 
             const orders = await response.json();
 
-            // Xóa nội dung cũ trong bảng
             tableBody.innerHTML = "";
 
             // Hiển thị từng yêu cầu trong bảng
@@ -99,27 +117,61 @@
                 const row = document.createElement("tr");
 
                 row.innerHTML = `
-                        <td>${order.id}</td>
-                        <td>${order.requesterName}</td>
-                        <td>${order.type}</td>
-                        <td>
-                            <ul>
-                                ${order.materials.map(material => `
-                                    <li>${material.name} - ${material.quantity} ${material.unit} - ${material.price.toLocaleString()} VND</li>
-                                `).join("")}
-                            </ul>
-                        </td>
-                        <td>${order.purpose}</td>
-                        <td>${order.date}</td>
-                        <td class="status-approved">Đã Duyệt</td>
-                        <td>${order.approvedBy}</td>
-                        <td>${order.approvedDate}</td>
-                    `;
+                    <td>${order.id}</td>
+                    <td>${order.requesterName}</td>
+                    <td>${order.type}</td>
+                    <td>
+                        <ul>
+                            ${order.materials.map(material => `
+                                <li>${material.name} - ${material.quantity} ${material.unit} - ${material.price.toLocaleString()} VND</li>
+                            `).join("")}
+                        </ul>
+                    </td>
+                    <td>${order.purpose}</td>
+                    <td>${order.date}</td>
+                    <td class="status-approved">Đã Duyệt</td>
+                    <td>${order.approvedBy}</td>
+                    <td>${order.approvedDate}</td>
+                    <td>
+                        <button class="pay-button" onclick="confirmPayment('${order.id}')">Xác Nhận</button>
+                    </td>
+                `;
 
                 tableBody.appendChild(row);
             });
         } catch (error) {
             console.error("Lỗi khi lấy dữ liệu:", error);
+        }
+    }
+
+    async function confirmPayment(orderId) {
+        const token = document.cookie
+            .split("; ")
+            .find(row => row.startsWith("token="))
+            ?.split("=")[1];
+
+        if (!token) {
+            alert("Token không tồn tại, vui lòng đăng nhập lại.");
+            return;
+        }
+        try {
+            const response = await fetch(`http://localhost:8080/api/accountant/order/paid?id=${orderId}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (response.ok) {
+                alert("Đã xác nhận chi trả thành công!");
+                fetchApprovedOrders(); // Cập nhật danh sách
+            } else {
+                alert("Không thể xác nhận chi trả. Vui lòng thử lại.");
+            }
+        } catch (error) {
+            console.error("Lỗi khi xác nhận chi trả:", error);
+            alert("Có lỗi xảy ra. Vui lòng thử lại.");
         }
     }
 

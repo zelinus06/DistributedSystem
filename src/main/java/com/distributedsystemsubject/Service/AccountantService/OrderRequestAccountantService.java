@@ -21,12 +21,11 @@ public class OrderRequestAccountantService {
        }
     }
 
-    public Object paidOrderRequest(String id) {
+    public void paidOrderRequest(String id) {
         MaterialOrder materialOrder = materialOrderRepo.findById(id).orElseThrow(() -> new RuntimeException("Order request not found"));
-        if (materialOrder.getStatus().equals("Approved")) {
+        if (materialOrder.getStatus().equals("approved")) {
             materialOrder.setStatus("Paid");
             materialOrderRepo.save(materialOrder);
-            return "Order request paid";
         } else {
             throw new RuntimeException("Order request not approved yet");
         }
