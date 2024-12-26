@@ -60,11 +60,11 @@
     <div class="container">
         <h1>Thêm Vật Liệu Vào Kho</h1>
         <form id="addMaterialForm">
-            <label for="warehouseId">ID Kho Vật Tư:</label>
-            <input type="text" id="warehouseId" placeholder="Nhập ID kho vật tư" required />
+<!--            <label for="warehouseId">ID Kho Vật Tư:</label>-->
+<!--            <input type="text" id="warehouseId" placeholder="Nhập ID kho vật tư" required />-->
 
-            <label for="warehouseName">Tên Kho:</label>
-            <input type="text" id="warehouseName" placeholder="Nhập tên kho vật tư" required />
+<!--            <label for="warehouseName">Tên Kho:</label>-->
+<!--            <input type="text" id="warehouseName" placeholder="Nhập tên kho vật tư" required />-->
 
             <label for="materialName">Tên Vật Liệu:</label>
             <input type="text" id="materialName" placeholder="Nhập tên vật liệu" required />
@@ -84,14 +84,14 @@
         // Hàm thêm vật liệu vào kho
         async function addMaterial() {
             const statusMessage = document.getElementById("statusMessage");
-            const warehouseId = document.getElementById("warehouseId").value.trim();
-            const warehouseName = document.getElementById("warehouseName").value.trim();
+            // const warehouseId = document.getElementById("warehouseId").value.trim();
+            // const warehouseName = document.getElementById("warehouseName").value.trim();
             const materialName = document.getElementById("materialName").value.trim();
             const materialQuantity = parseInt(document.getElementById("materialQuantity").value, 10);
             const materialUnit = document.getElementById("materialUnit").value.trim();
 
             // Kiểm tra đầu vào
-            if (!warehouseId || !warehouseName || !materialName || isNaN(materialQuantity) || !materialUnit) {
+            if (!materialName || isNaN(materialQuantity) || !materialUnit) {
                 statusMessage.textContent = "Vui lòng nhập đầy đủ thông tin.";
                 statusMessage.className = "error";
                 return;
@@ -99,8 +99,6 @@
 
             // Chuẩn bị dữ liệu yêu cầu
             const requestData = {
-                id: warehouseId,
-                name: warehouseName,
                 materials: [
                     {
                         name: materialName,
@@ -111,10 +109,20 @@
             };
 
             try {
+                const token = document.cookie
+                    .split("; ")
+                    .find(row => row.startsWith("token="))
+                    ?.split("=")[1];
+
+                if (!token) {
+                    alert("Token không tồn tại, vui lòng đăng nhập lại.");
+                    return;
+                }
                 // Gửi yêu cầu tới API
                 const response = await fetch("http://localhost:8080/api/storekeeper/material/add", {
                     method: "POST",
                     headers: {
+                        'Authorization': `Bearer ${token}`,
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify(requestData)

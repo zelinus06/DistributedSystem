@@ -23,7 +23,8 @@ public class OrderRequestAccountantController {
     @PostMapping("/paid")
     public ResponseEntity<?> paidOrderRequest(@RequestParam String id) {
         try {
-            return ResponseEntity.ok(orderRequestAccountantService.paidOrderRequest(id));
+            orderRequestAccountantService.paidOrderRequest(id);
+            return ResponseEntity.ok("Paid Order Request Success");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

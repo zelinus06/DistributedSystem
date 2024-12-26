@@ -40,13 +40,14 @@ public class ProvideRequestController {
 
     @PostMapping("/create")
     public ResponseEntity<String> createSupplyRequest(@RequestBody ProvideMaterialRequest request) {
-        if ( request.getMaterials() == null) {
+        if (request.getMaterials() == null) {
             return ResponseEntity.badRequest().body("Invalid request data");
         }
         request.setStorekeeperName(getRequesterName());
         request.setDate(new Date());
         request.setTopicName(provideTopic);
         request.setType(type);
+        request.setSource("67613d7bd6d5e23a7d90a609");
         try {
             String message = objectMapper.writeValueAsString(request);
             System.out.println("Sending message to Kafka: " + message);
@@ -54,7 +55,7 @@ public class ProvideRequestController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return ResponseEntity.ok("Request sent to Kafka");
+        return ResponseEntity.ok("Request sent successfully");
     }
 
     @GetMapping("/view")
